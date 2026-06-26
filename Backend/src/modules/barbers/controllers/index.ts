@@ -1,0 +1,1 @@
+export { barberController } from "./barber.controller";

@@ -1,0 +1,12 @@
+export { CreatePublicAppointmentUseCase } from "./create-public-appointment.use-case";
+export { CreateAdminAppointmentUseCase } from "./create-admin-appointment.use-case";
+export { UpdateAppointmentUseCase } from "./update-appointment.use-case";
+export { ListAppointmentsUseCase } from "./list-appointments.use-case";
+export { GetAppointmentByIdUseCase } from "./get-appointment-by-id.use-case";
+export { ConfirmAppointmentUseCase } from "./confirm-appointment.use-case";
+export { CancelAppointmentUseCase } from "./cancel-appointment.use-case";
+export { CompleteAppointmentUseCase } from "./complete-appointment.use-case";
+export { MarkNoShowAppointmentUseCase } from "./mark-no-show-appointment.use-case";
+export { GetAvailableSlotsUseCase } from "./get-available-slots.use-case";
+export { ValidateAppointmentConflictUseCase } from "./validate-appointment-conflict.use-case";
+export { TransitionAppointmentStatusUseCase } from "./transition-appointment-status.use-case";

@@ -1,0 +1,1 @@
+export { CreateBarberUseCase } from "./create-barber.use-case";

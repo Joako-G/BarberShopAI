@@ -1,0 +1,1 @@
+export { appointmentController } from "./appointment.controller";
