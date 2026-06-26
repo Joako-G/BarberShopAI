@@ -23,6 +23,10 @@ function getErrorMessage(error: unknown): string {
         : "No se pudo procesar el turno.";
 }
 
+function getAppointmentCustomerName(appointment: Appointment): string {
+    return appointment.customer?.full_name ?? appointment.guest_full_name ?? "Cliente pendiente";
+}
+
 export function EditAppointmentPage() {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -124,7 +128,7 @@ export function EditAppointmentPage() {
                 <span className={styles["appointments-eyebrow"]}>Agenda administrativa</span>
                 <h1>Editar turno</h1>
                 <p>
-                    Cliente: <strong>{appointment.customer.full_name}</strong>. El estado
+                    Cliente: <strong>{getAppointmentCustomerName(appointment)}</strong>. El estado
                     se gestiona desde la agenda.
                 </p>
             </header>
@@ -132,7 +136,10 @@ export function EditAppointmentPage() {
             <AppointmentForm
                 excludeAppointmentId={appointment.id}
                 initialValues={{
-                    customer_id: appointment.customer_id,
+                    customer_id: appointment.customer_id ?? undefined,
+                    full_name: appointment.guest_full_name ?? appointment.customer?.full_name ?? "",
+                    phone: appointment.guest_phone ?? appointment.customer?.phone ?? "",
+                    email: appointment.guest_email ?? appointment.customer?.email ?? "",
                     service_id: appointment.service_id,
                     appointment_date: appointment.appointment_date,
                     start_time: appointment.start_time.slice(0, 5),

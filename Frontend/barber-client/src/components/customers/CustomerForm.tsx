@@ -1,10 +1,19 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import {
     customerSchema,
     type CustomerFormData,
 } from "../../schemas/customerSchema";
 import { classNames } from "../../utils/classNames";
+import {
+    DEFAULT_PHONE_COUNTRY_CODE,
+    buildInternationalPhone,
+    keepDigitsOnly,
+    phoneCountryOptions,
+    splitInternationalPhone,
+    type PhoneCountryCode,
+} from "../../utils/phoneInput";
 import sharedStyles from "../ui/styles/shared.module.css";
 
 interface Props {
@@ -20,6 +29,10 @@ export function CustomerForm({
     onSubmit,
     onCancel,
 }: Props) {
+    const initialPhoneParts = splitInternationalPhone(initialValues?.phone ?? "");
+    const [phoneCountryCode, setPhoneCountryCode] = useState<PhoneCountryCode>(
+        initialPhoneParts.countryCode || DEFAULT_PHONE_COUNTRY_CODE
+    );
     const {
         register,
         handleSubmit,
@@ -28,13 +41,20 @@ export function CustomerForm({
         resolver: zodResolver(customerSchema),
         defaultValues: {
             full_name: initialValues?.full_name ?? "",
-            phone: initialValues?.phone ?? "",
+            phone: initialPhoneParts.nationalNumber,
             email: initialValues?.email ?? "",
         },
     });
 
+    const handleCustomerSubmit = async (data: CustomerFormData) => {
+        await onSubmit({
+            ...data,
+            phone: buildInternationalPhone(phoneCountryCode, data.phone),
+        });
+    };
+
     return (
-        <form className={classNames(sharedStyles.card, sharedStyles.formCard)} onSubmit={handleSubmit(onSubmit)}>
+        <form className={classNames(sharedStyles.card, sharedStyles.formCard)} onSubmit={handleSubmit(handleCustomerSubmit)}>
             <div className={sharedStyles.cardBody}>
                 <div className={sharedStyles.formGrid}>
                     <div className={classNames(sharedStyles.formField, sharedStyles.formFieldWide)}>
@@ -52,13 +72,30 @@ export function CustomerForm({
 
                     <div className={sharedStyles.formField}>
                         <label htmlFor="phone">Teléfono</label>
-                        <input
-                            id="phone"
-                            inputMode="tel"
-                            type="text"
-                            placeholder="2915551234"
-                            {...register("phone")}
-                        />
+                        <div className={sharedStyles.phoneInput}>
+                            <select
+                                aria-label="Código de país"
+                                value={phoneCountryCode}
+                                onChange={(event) =>
+                                    setPhoneCountryCode(event.target.value as PhoneCountryCode)
+                                }
+                            >
+                                {phoneCountryOptions.map((option) => (
+                                    <option key={option.code} value={option.code}>
+                                        {option.code} {option.label}
+                                    </option>
+                                ))}
+                            </select>
+                            <input
+                                id="phone"
+                                inputMode="numeric"
+                                maxLength={15}
+                                pattern="[0-9]*"
+                                type="tel"
+                                placeholder="2915551234"
+                                {...register("phone", { onChange: keepDigitsOnly })}
+                            />
+                        </div>
                         {errors.phone && (
                             <span className={sharedStyles.formError}>{errors.phone.message}</span>
                         )}

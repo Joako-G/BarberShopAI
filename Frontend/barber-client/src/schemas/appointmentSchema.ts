@@ -8,7 +8,10 @@ export const appointmentSchema = z.object({
         .trim()
         .max(200, "El nombre no puede superar los 200 caracteres")
         .optional(),
-    phone: z.string().optional(),
+    phone: z
+        .string()
+        .regex(/^\d*$/, "Ingresá solo números")
+        .optional(),
     email: z
         .string()
         .trim()
@@ -51,11 +54,11 @@ export const appointmentSchema = z.object({
         });
     }
 
-    const normalizedPhone = data.phone?.replace(/\D/g, "") ?? "";
-    if (normalizedPhone.length < 7 || normalizedPhone.length > 20) {
+    const normalizedPhone = data.phone ?? "";
+    if (normalizedPhone.length < 7 || normalizedPhone.length > 15) {
         context.addIssue({
             code: "custom",
-            message: "El teléfono debe contener entre 7 y 20 números",
+            message: "El teléfono debe contener entre 7 y 15 números",
             path: ["phone"],
         });
     }

@@ -27,6 +27,9 @@ const customer = {
 const insertedAppointment = {
   id: "33333333-3333-4333-8333-333333333333",
   customer_id: customer.id,
+  guest_full_name: null,
+  guest_phone: null,
+  guest_email: null,
   barber_id: null,
   service_id: service.id,
   appointment_date: "2030-07-01",
@@ -46,11 +49,22 @@ describe("appointment creation", () => {
     vi.spyOn(appointmentRepository, "findOverlapping").mockResolvedValue([]);
     vi.spyOn(
       appointmentRepository,
+      "createPublicAtomic"
+    ).mockResolvedValue({
+      ...insertedAppointment,
+      customer_id: null,
+      guest_full_name: customer.full_name,
+      guest_phone: customer.phone,
+      guest_email: null,
+      customer: null,
+    });
+    vi.spyOn(
+      appointmentRepository,
       "createWithCustomerAtomic"
     ).mockResolvedValue(insertedAppointment);
   });
 
-  it("delegates public customer reuse and creation to the atomic RPC", async () => {
+  it("creates public appointments with guest data without creating a customer", async () => {
     await new CreatePublicAppointmentUseCase().execute({
       full_name: customer.full_name,
       phone: customer.phone,
@@ -62,15 +76,14 @@ describe("appointment creation", () => {
     });
 
     expect(
-      appointmentRepository.createWithCustomerAtomic
+      appointmentRepository.createPublicAtomic
     ).toHaveBeenCalledWith(
       expect.objectContaining({
-        customer_id: null,
         full_name: customer.full_name,
         phone: customer.phone,
-        status: "pending",
       })
     );
+    expect(appointmentRepository.createWithCustomerAtomic).not.toHaveBeenCalled();
   });
 
   it("creates admin appointments as confirmed for a new customer", async () => {
@@ -122,7 +135,7 @@ describe("appointment creation", () => {
 
   it("returns 409 when the atomic insert detects a concurrent conflict", async () => {
     vi.mocked(
-      appointmentRepository.createWithCustomerAtomic
+      appointmentRepository.createPublicAtomic
     ).mockRejectedValue({
         code: "P0001",
         message: "APPOINTMENT_CONFLICT",

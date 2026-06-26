@@ -57,6 +57,17 @@
     opacity: 0.66;
 }
 
+.appointment-form__phone-input {
+    display: grid;
+    grid-template-columns: minmax(132px, 0.42fr) minmax(0, 1fr);
+    gap: 8px;
+}
+
+.appointment-form__phone-input select,
+.appointment-form__phone-input input {
+    min-width: 0;
+}
+
 .appointment-form__field em {
     color: var(--error);
     font-size: 12px;
@@ -179,6 +190,9 @@
         grid-column: auto;
     }
     .appointment-form__new-customer {
+        grid-template-columns: 1fr;
+    }
+    .appointment-form__phone-input {
         grid-template-columns: 1fr;
     }
     .appointment-form__new-customer .appointment-form__field:first-child {

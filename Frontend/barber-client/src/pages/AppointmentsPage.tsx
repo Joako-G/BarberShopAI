@@ -43,6 +43,10 @@ function cleanFilters(filters: AppointmentFilters): AppointmentFilters {
     ) as AppointmentFilters;
 }
 
+function getAppointmentCustomerName(appointment: Appointment): string {
+    return appointment.customer?.full_name ?? appointment.guest_full_name ?? "Cliente pendiente";
+}
+
 export function AppointmentsPage() {
     const navigate = useNavigate();
     const initialFilters: AppointmentFilters = { date: getBusinessDate() };
@@ -115,7 +119,7 @@ export function AppointmentsPage() {
                 confirmText="Confirmar"
                 description={
                     pendingAction
-                        ? `Esta acción va a ${actionLabels[pendingAction.action]} el turno de ${pendingAction.appointment.customer.full_name}.`
+                        ? `Esta acción va a ${actionLabels[pendingAction.action]} el turno de ${getAppointmentCustomerName(pendingAction.appointment)}.`
                         : "Confirmá la acción sobre el turno seleccionado."
                 }
                 loading={pendingAction !== null && updatingId === pendingAction.appointment.id}

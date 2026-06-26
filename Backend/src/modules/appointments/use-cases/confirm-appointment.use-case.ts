@@ -1,11 +1,13 @@
+import { appointmentRepository } from "../repositories";
 import { AppointmentWithDetails } from "../types";
-import { TransitionAppointmentStatusUseCase } from "./transition-appointment-status.use-case";
-
-const transitionAppointmentStatusUseCase =
-  new TransitionAppointmentStatusUseCase();
+import { mapAppointmentDatabaseError } from "../utils/appointment-database-error.utils";
 
 export class ConfirmAppointmentUseCase {
   async execute(id: string): Promise<AppointmentWithDetails> {
-    return transitionAppointmentStatusUseCase.execute(id, "confirmed");
+    try {
+      return await appointmentRepository.confirmAtomic(id);
+    } catch (error: unknown) {
+      throw mapAppointmentDatabaseError(error);
+    }
   }
 }

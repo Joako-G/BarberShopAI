@@ -238,9 +238,11 @@ El backend debe:
 4. Calcular `end_time` usando `duration_minutes + buffer_minutes`.
 5. Validar que la fecha y hora no sean pasadas.
 6. Validar que no exista superposición con turnos activos.
-7. Crear o reutilizar customer por teléfono.
-8. Crear turno con estado `pending`.
+7. Guardar nombre, teléfono y email en campos temporales del turno.
+8. Crear turno con estado `pending` sin crear customer.
 9. Devolver confirmación.
+
+El customer se crea o reutiliza recién cuando el admin confirma el turno.
 
 Estados que bloquean horario:
 

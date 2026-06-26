@@ -27,8 +27,7 @@ export class CreatePublicAppointmentUseCase {
     });
 
     try {
-      return await appointmentRepository.createWithCustomerAtomic({
-        customer_id: null,
+      return await appointmentRepository.createPublicAtomic({
         full_name: dto.full_name,
         phone: dto.phone,
         email: dto.email ?? null,
@@ -36,7 +35,6 @@ export class CreatePublicAppointmentUseCase {
         service_id: dto.service_id,
         appointment_date: dto.appointment_date,
         start_time: dto.start_time,
-        status: "pending",
         notes: dto.notes ?? null,
       });
     } catch (error: unknown) {

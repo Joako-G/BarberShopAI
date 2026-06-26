@@ -63,7 +63,8 @@ export const mapAppointmentDatabaseError = (error: unknown): Error => {
     errorText.includes("INVALID_INITIAL_STATUS") ||
     errorText.includes("INVALID_TIME_RANGE") ||
     errorText.includes("INVALID_CUSTOMER_NAME") ||
-    errorText.includes("INVALID_CUSTOMER_PHONE")
+    errorText.includes("INVALID_CUSTOMER_PHONE") ||
+    errorText.includes("CUSTOMER_CREATION_FAILED")
   ) {
     return new ValidationError("Invalid appointment data");
   }

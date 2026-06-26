@@ -64,9 +64,9 @@ const findAppointmentWithDetailsById = async (
 export const appointmentRepository = {
   async findAll(filters: ListAppointmentsQuery): Promise<AppointmentWithDetails[]> {
     let customerIds: string[] | undefined;
+    const search = filters.customer ? `%${filters.customer}%` : undefined;
 
-    if (filters.customer) {
-      const search = `%${filters.customer}%`;
+    if (search) {
       const [nameResult, phoneResult] = await Promise.all([
         supabaseAdmin.from("customers").select("id").ilike("full_name", search),
         supabaseAdmin.from("customers").select("id").ilike("phone", search),
@@ -82,9 +82,6 @@ export const appointmentRepository = {
         ])
       );
 
-      if (customerIds.length === 0) {
-        return [];
-      }
     }
 
     let query = supabaseAdmin
@@ -102,7 +99,16 @@ export const appointmentRepository = {
     }
 
     if (customerIds) {
-      query = query.in("customer_id", customerIds);
+      const customerFilters =
+        customerIds.length > 0 ? [`customer_id.in.(${customerIds.join(",")})`] : [];
+
+      query = query.or(
+        [
+          ...customerFilters,
+          `guest_full_name.ilike.${search}`,
+          `guest_phone.ilike.${search}`,
+        ].join(",")
+      );
     }
 
     const { data, error } = await query;
@@ -198,6 +204,41 @@ export const appointmentRepository = {
     return appointment;
   },
 
+  async createPublicAtomic(dto: {
+    full_name: string;
+    phone: string;
+    email: string | null;
+    barber_id: string | null;
+    service_id: string;
+    appointment_date: string;
+    start_time: string;
+    notes?: string | null;
+  }): Promise<AppointmentWithDetails> {
+    const { data, error } = await supabaseAdmin
+      .rpc("create_public_appointment_atomic", {
+        p_full_name: dto.full_name,
+        p_phone: dto.phone,
+        p_email: dto.email,
+        p_barber_id: dto.barber_id,
+        p_service_id: dto.service_id,
+        p_appointment_date: dto.appointment_date,
+        p_start_time: dto.start_time,
+        p_notes: dto.notes ?? null,
+      });
+
+    if (error) throw error;
+
+    const appointment = await findAppointmentWithDetailsById(
+      getAtomicAppointmentId(data)
+    );
+
+    if (!appointment) {
+      throw new Error("Atomic public appointment result was not found");
+    }
+
+    return appointment;
+  },
+
   async updateDetailsAtomic(
     id: string,
     dto: {
@@ -247,6 +288,25 @@ export const appointmentRepository = {
 
     if (!appointment) {
       throw new Error("Atomic appointment status result was not found");
+    }
+
+    return appointment;
+  },
+
+  async confirmAtomic(id: string): Promise<AppointmentWithDetails> {
+    const { data, error } = await supabaseAdmin
+      .rpc("confirm_appointment_atomic", {
+        p_appointment_id: id,
+      });
+
+    if (error) throw error;
+
+    const appointment = await findAppointmentWithDetailsById(
+      getAtomicAppointmentId(data)
+    );
+
+    if (!appointment) {
+      throw new Error("Atomic appointment confirmation result was not found");
     }
 
     return appointment;

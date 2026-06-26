@@ -8,8 +8,9 @@ export const customerSchema = z.object({
         .max(30, "El nombre no uede superar los 30 caracteres"),
     phone: z
         .string()
-        .min(10, "El numero debe contener por lo menos 10 numeros")
-        .max(10, "El numero debe contener por lo menos 10 numeros"),
+        .regex(/^\d+$/, "Ingresá solo números")
+        .min(7, "El numero debe contener por lo menos 7 numeros")
+        .max(15, "El numero no puede superar los 15 numeros"),
     email: z
         .string()
 })

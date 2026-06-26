@@ -329,6 +329,7 @@
 }
 
 .booking-field input,
+.booking-field select,
 .booking-field textarea {
     width: 100%;
     min-height: 48px;
@@ -339,12 +340,24 @@
     background: rgba(255, 255, 255, 0.88);
 }
 
+.booking-phone-input {
+    display: grid;
+    grid-template-columns: minmax(132px, 0.42fr) minmax(0, 1fr);
+    gap: 8px;
+}
+
+.booking-phone-input select,
+.booking-phone-input input {
+    min-width: 0;
+}
+
 .booking-field textarea {
     min-height: 100px;
     resize: vertical;
 }
 
 .booking-field input:focus,
+.booking-field select:focus,
 .booking-field textarea:focus {
     outline: none;
     border-color: var(--primary);
@@ -595,6 +608,10 @@
     .booking-services,
     .booking-schedule,
     .booking-details {
+        grid-template-columns: 1fr;
+    }
+
+    .booking-phone-input {
         grid-template-columns: 1fr;
     }
 

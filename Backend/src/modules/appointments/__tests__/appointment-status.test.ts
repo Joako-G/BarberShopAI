@@ -1,11 +1,15 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { appointmentRepository } from "../repositories";
+import { ConfirmAppointmentUseCase } from "../use-cases/confirm-appointment.use-case";
 import { TransitionAppointmentStatusUseCase } from "../use-cases/transition-appointment-status.use-case";
 
 describe("appointment status transitions", () => {
   const appointment = {
     id: "33333333-3333-4333-8333-333333333333",
     customer_id: "22222222-2222-4222-8222-222222222222",
+    guest_full_name: null,
+    guest_phone: null,
+    guest_email: null,
     barber_id: null,
     service_id: "11111111-1111-4111-8111-111111111111",
     appointment_date: "2030-07-01",
@@ -36,12 +40,9 @@ describe("appointment status transitions", () => {
     vi.restoreAllMocks();
   });
 
-  it.each([
-    "confirmed",
-    "cancelled",
-    "completed",
-    "no_show",
-  ] as const)("delegates transition to %s atomically", async (nextStatus) => {
+  it.each(["cancelled", "completed", "no_show"] as const)(
+    "delegates transition to %s atomically",
+    async (nextStatus) => {
     const updateStatusAtomic = vi
       .spyOn(appointmentRepository, "updateStatusAtomic")
       .mockResolvedValue({ ...appointment, status: nextStatus });
@@ -55,6 +56,17 @@ describe("appointment status transitions", () => {
       appointment.id,
       nextStatus
     );
+    }
+  );
+
+  it("confirms appointments atomically while creating or reusing a customer", async () => {
+    const confirmAtomic = vi
+      .spyOn(appointmentRepository, "confirmAtomic")
+      .mockResolvedValue(appointment);
+
+    await new ConfirmAppointmentUseCase().execute(appointment.id);
+
+    expect(confirmAtomic).toHaveBeenCalledWith(appointment.id);
   });
 
   it("maps a concurrent invalid transition to 422", async () => {

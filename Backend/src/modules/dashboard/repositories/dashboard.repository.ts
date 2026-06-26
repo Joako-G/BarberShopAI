@@ -37,7 +37,7 @@ export const dashboardRepository = {
   async getUpcomingAppointmentsToday(date: string, currentTime: string): Promise<UpcomingAppointment[]> {
     const { data, error } = await supabaseAdmin
       .from("appointments")
-      .select("id, start_time, status, customer_id, service_id")
+      .select("id, start_time, status, customer_id, guest_full_name, service_id")
       .eq("appointment_date", date)
       .in("status", ["pending", "confirmed"])
       .order("start_time", { ascending: true });
@@ -51,11 +51,19 @@ export const dashboardRepository = {
 
     if (filteredData.length === 0) return [];
 
-    const customerIds = [...new Set(filteredData.map((apt) => apt.customer_id))];
+    const customerIds = [
+      ...new Set(
+        filteredData
+          .map((apt) => apt.customer_id)
+          .filter((id): id is string => typeof id === "string")
+      ),
+    ];
     const serviceIds = [...new Set(filteredData.map((apt) => apt.service_id))];
 
     const [customersData, servicesData] = await Promise.all([
-      supabaseAdmin.from("customers").select("id, full_name").in("id", customerIds),
+      customerIds.length > 0
+        ? supabaseAdmin.from("customers").select("id, full_name").in("id", customerIds)
+        : Promise.resolve({ data: [], error: null }),
       supabaseAdmin.from("services").select("id, name").in("id", serviceIds),
     ]);
 
@@ -68,7 +76,10 @@ export const dashboardRepository = {
     return filteredData.map((apt) => ({
       id: apt.id,
       start_time: apt.start_time.substring(0, 5),
-      customer_name: customersMap.get(apt.customer_id) ?? "Unknown",
+      customer_name:
+        (apt.customer_id ? customersMap.get(apt.customer_id) : null) ??
+        apt.guest_full_name ??
+        "Unknown",
       service_name: servicesMap.get(apt.service_id) ?? "Unknown",
       status: apt.status,
     }));

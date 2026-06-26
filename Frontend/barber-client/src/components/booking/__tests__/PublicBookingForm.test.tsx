@@ -39,7 +39,10 @@ const service = {
 
 const appointment = {
     id: "33333333-3333-4333-8333-333333333333",
-    customer_id: "22222222-2222-4222-8222-222222222222",
+    customer_id: null,
+    guest_full_name: "Juan Pérez",
+    guest_phone: "542915551234",
+    guest_email: null,
     barber_id: null,
     service_id: service.id,
     appointment_date: "2030-07-01",
@@ -49,12 +52,7 @@ const appointment = {
     notes: null,
     created_at: "",
     updated_at: null,
-    customer: {
-        id: "22222222-2222-4222-8222-222222222222",
-        full_name: "Juan Pérez",
-        phone: "2915551234",
-        email: null,
-    },
+    customer: null,
     service,
 };
 
@@ -71,7 +69,7 @@ async function completeBookingForm() {
         await screen.findByRole("radio", { name: "10:00" })
     );
     await user.type(screen.getByLabelText("Nombre completo"), "Juan Pérez");
-    await user.type(screen.getByLabelText("Teléfono"), "2915551234");
+    await user.type(screen.getByPlaceholderText("2915551234"), "2915551234");
 
     return user;
 }
@@ -99,7 +97,7 @@ describe("PublicBookingForm", () => {
             expect(mocks.createPublicAppointment).toHaveBeenCalledWith(
                 expect.objectContaining({
                     full_name: "Juan Pérez",
-                    phone: "2915551234",
+                    phone: "542915551234",
                     service_id: service.id,
                     start_time: "10:00",
                 })

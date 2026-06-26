@@ -1,3 +1,4 @@
+import { MessageCircle } from "lucide-react";
 import type {
     Appointment,
     AppointmentAction,
@@ -30,7 +31,6 @@ const statusLabels: Record<AppointmentStatus, string> = {
 const actionsByStatus: Record<AppointmentStatus, readonly ActionDefinition[]> = {
     pending: [
         { action: "confirm", label: "Confirmar", tone: "primary" },
-        { action: "complete", label: "Completar", tone: "neutral" },
         { action: "cancel", label: "Cancelar", tone: "danger" },
     ],
     confirmed: [
@@ -57,6 +57,45 @@ function formatTime(time: string): string {
     return time.slice(0, 5);
 }
 
+function formatMessageDate(date: string): string {
+    const [year, month, day] = date.split("-").map(Number);
+
+    return new Intl.DateTimeFormat("es-AR", {
+        weekday: "long",
+        day: "2-digit",
+        month: "long",
+    }).format(new Date(year, month - 1, day));
+}
+
+function getAppointmentCustomer(appointment: Appointment): {
+    fullName: string;
+    phone: string;
+} {
+    return {
+        fullName: appointment.customer?.full_name ?? appointment.guest_full_name ?? "Cliente pendiente",
+        phone: appointment.customer?.phone ?? appointment.guest_phone ?? "Sin teléfono",
+    };
+}
+
+function buildWhatsAppUrl(appointment: Appointment): string | null {
+    const phone = appointment.customer?.phone ?? appointment.guest_phone;
+    const normalizedPhone = phone?.replace(/\D/g, "");
+
+    if (!normalizedPhone) return null;
+
+    const customerName =
+        appointment.customer?.full_name ?? appointment.guest_full_name ?? "buenas";
+    const message = [
+        `Hola ${customerName}, te escribimos de BarberShop para confirmar tu turno.`,
+        `Servicio: ${appointment.service.name}.`,
+        `Fecha: ${formatMessageDate(appointment.appointment_date)}.`,
+        `Hora: ${formatTime(appointment.start_time)}.`,
+        "¿Nos confirmás si vas a asistir?",
+    ].join(" ");
+
+    return `https://wa.me/${normalizedPhone}?text=${encodeURIComponent(message)}`;
+}
+
 export function AppointmentsTable({
     appointments,
     updatingId,
@@ -80,13 +119,18 @@ export function AppointmentsTable({
                     {appointments.map((appointment) => {
                         const isUpdating = updatingId === appointment.id;
                         const availableActions = actionsByStatus[appointment.status];
+                        const appointmentCustomer = getAppointmentCustomer(appointment);
+                        const whatsAppUrl =
+                            appointment.status === "pending"
+                                ? buildWhatsAppUrl(appointment)
+                                : null;
 
                         return (
                             <tr key={appointment.id}>
                                 <td data-label="Cliente">
                                     <div className={styles["appointments-table__value"]}>
-                                        <strong>{appointment.customer.full_name}</strong>
-                                        <span>({appointment.customer.phone})</span>
+                                        <strong>{appointmentCustomer.fullName}</strong>
+                                        <span>({appointmentCustomer.phone})</span>
                                     </div>
                                 </td>
                                 <td data-label="Servicio">
@@ -121,6 +165,18 @@ export function AppointmentsTable({
                                     ) : (
                                         <div className={styles["appointments-actions-cell"]}>
                                             <div className={styles["appointments-actions"]}>
+                                                {whatsAppUrl && (
+                                                    <a
+                                                        aria-label={`Contactar por WhatsApp a ${appointmentCustomer.fullName}`}
+                                                        className={classNames(styles["appointment-action"], styles["appointment-action--whatsapp"])}
+                                                        href={whatsAppUrl}
+                                                        rel="noreferrer"
+                                                        target="_blank"
+                                                    >
+                                                        <MessageCircle aria-hidden="true" size={14} />
+                                                        WhatsApp
+                                                    </a>
+                                                )}
                                                 <button
                                                     className={classNames(styles["appointment-action"], styles["appointment-action--edit"])}
                                                     disabled={isUpdating}
@@ -144,12 +200,22 @@ export function AppointmentsTable({
 
                                             <details className={styles["appointments-actions-menu"]}>
                                                 <summary
-                                                    aria-label={`Abrir acciones para ${appointment.customer.full_name}`}
+                                                    aria-label={`Abrir acciones para ${appointmentCustomer.fullName}`}
                                                     className={styles["appointments-actions-menu__trigger"]}
                                                 >
                                                     <span aria-hidden="true">...</span>
                                                 </summary>
                                                 <div className={styles["appointments-actions-menu__content"]}>
+                                                    {whatsAppUrl && (
+                                                        <a
+                                                            className={classNames(styles["appointments-actions-menu__item"], styles["appointments-actions-menu__item--whatsapp"])}
+                                                            href={whatsAppUrl}
+                                                            rel="noreferrer"
+                                                            target="_blank"
+                                                        >
+                                                            WhatsApp
+                                                        </a>
+                                                    )}
                                                     <button
                                                         className={styles["appointments-actions-menu__item"]}
                                                         disabled={isUpdating}

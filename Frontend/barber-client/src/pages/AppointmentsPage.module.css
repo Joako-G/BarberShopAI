@@ -364,7 +364,11 @@
 }
 
 .appointment-action {
+    display: inline-flex;
     min-height: 34px;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
     border: 1px solid transparent;
     border-radius: var(--radius);
     padding: 7px 9px;
@@ -372,6 +376,7 @@
     font-weight: 600;
     cursor: pointer;
     transition: 150ms ease;
+    text-decoration: none;
 }
 
 .appointment-action:hover:not(:disabled) {
@@ -394,6 +399,12 @@
     color: var(--error);
     border-color: rgba(186, 26, 26, 0.18);
     background: rgba(255, 218, 214, 0.5);
+}
+
+.appointment-action--whatsapp {
+    color: #075e54;
+    border-color: rgba(37, 211, 102, 0.26);
+    background: rgba(220, 248, 198, 0.74);
 }
 
 .appointment-action:disabled {
@@ -537,6 +548,8 @@
         box-shadow: 0 18px 42px rgba(15, 23, 42, 0.18);
     }
     .appointments-actions-menu__item {
+        display: flex;
+        align-items: center;
         width: 100%;
         min-height: 40px;
         border: 0;
@@ -548,6 +561,7 @@
         font-weight: 700;
         text-align: left;
         cursor: pointer;
+        text-decoration: none;
     }
     .appointments-actions-menu__item:last-child {
         border-bottom: 0;
@@ -560,6 +574,9 @@
     }
     .appointments-actions-menu__item--danger {
         color: var(--error);
+    }
+    .appointments-actions-menu__item--whatsapp {
+        color: #075e54;
     }
     .appointments-actions-menu__item:disabled {
         cursor: wait;

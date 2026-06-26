@@ -26,7 +26,10 @@ export interface AppointmentService {
 
 export interface Appointment {
     id: string;
-    customer_id: string;
+    customer_id: string | null;
+    guest_full_name: string | null;
+    guest_phone: string | null;
+    guest_email: string | null;
     barber_id: string | null;
     service_id: string;
     appointment_date: string;
@@ -36,7 +39,7 @@ export interface Appointment {
     notes: string | null;
     created_at: string;
     updated_at: string | null;
-    customer: AppointmentCustomer;
+    customer: AppointmentCustomer | null;
     service: AppointmentService;
 }
 

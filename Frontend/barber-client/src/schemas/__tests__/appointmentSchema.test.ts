@@ -47,5 +47,15 @@ describe("appointmentSchema", () => {
                 email: "",
             }).success
         ).toBe(true);
+
+        expect(
+            appointmentSchema.safeParse({
+                ...schedule,
+                customer_mode: "new",
+                full_name: "Ana Pérez",
+                phone: "291ABC1234",
+                email: "",
+            }).success
+        ).toBe(false);
     });
 });

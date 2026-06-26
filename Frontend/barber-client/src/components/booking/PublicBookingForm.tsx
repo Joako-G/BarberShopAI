@@ -16,6 +16,13 @@ import type { Appointment } from "../../types/appointment";
 import type { Service } from "../../types/service";
 import { getBusinessDate } from "../../utils/businessTime";
 import { classNames } from "../../utils/classNames";
+import {
+    DEFAULT_PHONE_COUNTRY_CODE,
+    buildInternationalPhone,
+    keepDigitsOnly,
+    phoneCountryOptions,
+    type PhoneCountryCode,
+} from "../../utils/phoneInput";
 import styles from "../../pages/PublicBookingPage.module.css";
 import sharedStyles from "../ui/styles/shared.module.css";
 
@@ -50,6 +57,9 @@ export function PublicBookingForm({ onSuccess }: PublicBookingFormProps) {
     const [slotsLoading, setSlotsLoading] = useState(false);
     const [servicesError, setServicesError] = useState<string | null>(null);
     const [slotsError, setSlotsError] = useState<string | null>(null);
+    const [phoneCountryCode, setPhoneCountryCode] = useState<PhoneCountryCode>(
+        DEFAULT_PHONE_COUNTRY_CODE
+    );
 
     const {
         control,
@@ -149,7 +159,7 @@ export function PublicBookingForm({ onSuccess }: PublicBookingFormProps) {
         try {
             const appointment = await createPublicAppointment({
                 full_name: data.full_name.trim(),
-                phone: data.phone,
+                phone: buildInternationalPhone(phoneCountryCode, data.phone),
                 email: data.email.trim() || null,
                 service_id: data.service_id,
                 appointment_date: data.appointment_date,
@@ -349,13 +359,30 @@ export function PublicBookingForm({ onSuccess }: PublicBookingFormProps) {
 
                     <label className={styles["booking-field"]}>
                         <span>Teléfono</span>
-                        <input
-                            autoComplete="tel"
-                            inputMode="tel"
-                            placeholder="2915551234"
-                            type="text"
-                            {...register("phone")}
-                        />
+                        <div className={styles["booking-phone-input"]}>
+                            <select
+                                aria-label="Código de país"
+                                value={phoneCountryCode}
+                                onChange={(event) =>
+                                    setPhoneCountryCode(event.target.value as PhoneCountryCode)
+                                }
+                            >
+                                {phoneCountryOptions.map((option) => (
+                                    <option key={option.code} value={option.code}>
+                                        {option.code} {option.label}
+                                    </option>
+                                ))}
+                            </select>
+                            <input
+                                autoComplete="tel-national"
+                                inputMode="numeric"
+                                maxLength={15}
+                                pattern="[0-9]*"
+                                placeholder="2915551234"
+                                type="tel"
+                                {...register("phone", { onChange: keepDigitsOnly })}
+                            />
+                        </div>
                         {errors.phone && <em>{errors.phone.message}</em>}
                     </label>
 

@@ -257,11 +257,11 @@ Body:
 Reglas:
 
 - No requiere login.
-- Crea o reutiliza customer por teléfono.
+- Guarda nombre, teléfono y email en el turno como datos temporales.
 - Calcula `end_time` con `duration_minutes + buffer_minutes`.
 - Valida superposición.
 - La validación definitiva y la inserción se ejecutan atómicamente en PostgreSQL.
-- Crea el turno en estado `pending`.
+- Crea el turno en estado `pending` sin crear customer.
 
 ---
 
@@ -279,6 +279,14 @@ Requiere:
 authenticate
 requireRole("admin")
 ```
+
+Reglas:
+
+- Si el turno pendiente no tiene `customer_id`, crea o reutiliza el customer por
+  `guest_phone`.
+- Asigna `customer_id`.
+- Cambia el estado a `confirmed`.
+- La operación se ejecuta atómicamente en PostgreSQL.
 
 Filtros opcionales:
 

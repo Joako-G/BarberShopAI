@@ -28,13 +28,20 @@ describe("publicBookingSchema", () => {
         expect(result.success).toBe(false);
     });
 
-    it("accepts formatted phone numbers and rejects invalid email", () => {
+    it("rejects phone letters or formatting and invalid email", () => {
         expect(
             publicBookingSchema.safeParse({
                 ...validBooking,
                 phone: "+54 291 555-1234",
             }).success
-        ).toBe(true);
+        ).toBe(false);
+
+        expect(
+            publicBookingSchema.safeParse({
+                ...validBooking,
+                phone: "291ABC1234",
+            }).success
+        ).toBe(false);
 
         expect(
             publicBookingSchema.safeParse({

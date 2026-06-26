@@ -185,6 +185,8 @@ Las funciones PostgreSQL:
 create_appointment_atomic
 update_appointment_atomic
 create_appointment_with_customer_atomic
+create_public_appointment_atomic
+confirm_appointment_atomic
 transition_appointment_status_atomic
 ```
 

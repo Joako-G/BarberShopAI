@@ -12,6 +12,14 @@ import { getServices } from "../../services/serviceApi";
 import type { Customer } from "../../types/customer";
 import type { Service } from "../../types/service";
 import { classNames } from "../../utils/classNames";
+import {
+    DEFAULT_PHONE_COUNTRY_CODE,
+    buildInternationalPhone,
+    keepDigitsOnly,
+    phoneCountryOptions,
+    splitInternationalPhone,
+    type PhoneCountryCode,
+} from "../../utils/phoneInput";
 import appointmentStyles from "../../pages/AppointmentsPage.module.css";
 import styles from "./AppointmentForm.module.css";
 
@@ -44,6 +52,7 @@ export function AppointmentForm({
     onSubmit,
     onCancel,
 }: AppointmentFormProps) {
+    const initialPhoneParts = splitInternationalPhone(initialValues?.phone ?? "");
     const [customers, setCustomers] = useState<Customer[]>([]);
     const [services, setServices] = useState<Service[]>([]);
     const [availableSlots, setAvailableSlots] = useState<string[]>([]);
@@ -51,6 +60,9 @@ export function AppointmentForm({
     const [slotsLoading, setSlotsLoading] = useState(false);
     const [optionsError, setOptionsError] = useState<string | null>(null);
     const [slotsError, setSlotsError] = useState<string | null>(null);
+    const [phoneCountryCode, setPhoneCountryCode] = useState<PhoneCountryCode>(
+        initialPhoneParts.countryCode || DEFAULT_PHONE_COUNTRY_CODE
+    );
 
     const {
         control,
@@ -65,7 +77,7 @@ export function AppointmentForm({
             customer_mode: "existing",
             customer_id: initialValues?.customer_id ?? "",
             full_name: "",
-            phone: "",
+            phone: initialPhoneParts.nationalNumber,
             email: "",
             service_id: initialValues?.service_id ?? "",
             appointment_date: initialValues?.appointment_date ?? "",
@@ -77,6 +89,18 @@ export function AppointmentForm({
     const selectedServiceId = useWatch({ control, name: "service_id" });
     const selectedDate = useWatch({ control, name: "appointment_date" });
     const customerMode = useWatch({ control, name: "customer_mode" });
+
+    const handleFormSubmit = async (data: AppointmentFormData) => {
+        if (data.customer_mode !== "new") {
+            await onSubmit(data);
+            return;
+        }
+
+        await onSubmit({
+            ...data,
+            phone: buildInternationalPhone(phoneCountryCode, data.phone ?? ""),
+        });
+    };
 
     useEffect(() => {
         const requestId = window.setTimeout(() => {
@@ -183,6 +207,18 @@ export function AppointmentForm({
             ),
         [initialValues?.service_id, services]
     );
+    const lockedCustomerId = initialValues?.customer_id ?? "";
+    const lockedCustomer = customers.find(
+        (customer) => customer.id === lockedCustomerId
+    );
+    const lockedGuestName = initialValues?.full_name ?? "";
+    const lockedGuestPhone = initialPhoneParts.nationalNumber;
+    const lockedGuestEmail = initialValues?.email ?? "";
+    const lockedCustomerLabel = lockedCustomer
+        ? `${lockedCustomer.full_name} · ${lockedCustomer.phone}`
+        : lockedGuestName && lockedGuestPhone
+            ? `${lockedGuestName} · ${lockedGuestPhone}`
+            : "Cliente pendiente";
 
     if (optionsLoading) {
         return (
@@ -201,24 +237,46 @@ export function AppointmentForm({
     }
 
     return (
-        <form className={styles["appointment-form"]} onSubmit={handleSubmit(onSubmit)}>
+        <form className={styles["appointment-form"]} onSubmit={handleSubmit(handleFormSubmit)}>
             <div className={styles["appointment-form__grid"]}>
                 {lockCustomer ? (
                     <label className={classNames(styles["appointment-form__field"], styles["appointment-form__field--wide"])}>
                         <span>Cliente</span>
-                        <select disabled value={initialValues?.customer_id ?? ""}>
-                            {customers.map((customer) => (
-                                <option key={customer.id} value={customer.id}>
-                                    {customer.full_name} · {customer.phone}
+                        <select disabled value={lockedCustomerId || "guest"}>
+                            <option value={lockedCustomerId || "guest"}>
+                                {lockedCustomerLabel}
                                 </option>
-                            ))}
                         </select>
-                        <input type="hidden" {...register("customer_mode")} />
                         <input
                             type="hidden"
-                            value={initialValues?.customer_id ?? ""}
-                            {...register("customer_id")}
+                            value={lockedCustomerId ? "existing" : "new"}
+                            {...register("customer_mode")}
                         />
+                        {lockedCustomerId ? (
+                            <input
+                                type="hidden"
+                                value={lockedCustomerId}
+                                {...register("customer_id")}
+                            />
+                        ) : (
+                            <>
+                                <input
+                                    type="hidden"
+                                    value={lockedGuestName}
+                                    {...register("full_name")}
+                                />
+                                <input
+                                    type="hidden"
+                                    value={lockedGuestPhone}
+                                    {...register("phone")}
+                                />
+                                <input
+                                    type="hidden"
+                                    value={lockedGuestEmail}
+                                    {...register("email")}
+                                />
+                            </>
+                        )}
                         <small>El cliente no puede cambiarse después de crear el turno.</small>
                     </label>
                 ) : (
@@ -275,17 +333,34 @@ export function AppointmentForm({
                                     {errors.full_name && <em>{errors.full_name.message}</em>}
                                 </label>
 
-                                <label className={styles["appointment-form__field"]}>
-                                    <span>Teléfono</span>
+                            <label className={styles["appointment-form__field"]}>
+                                <span>Teléfono</span>
+                                <div className={styles["appointment-form__phone-input"]}>
+                                    <select
+                                        aria-label="Código de país"
+                                        value={phoneCountryCode}
+                                        onChange={(event) =>
+                                            setPhoneCountryCode(event.target.value as PhoneCountryCode)
+                                        }
+                                    >
+                                        {phoneCountryOptions.map((option) => (
+                                            <option key={option.code} value={option.code}>
+                                                {option.code} {option.label}
+                                            </option>
+                                        ))}
+                                    </select>
                                     <input
-                                        autoComplete="tel"
-                                        inputMode="tel"
+                                        autoComplete="tel-national"
+                                        inputMode="numeric"
+                                        maxLength={15}
+                                        pattern="[0-9]*"
                                         placeholder="2915551234"
-                                        type="text"
-                                        {...register("phone")}
+                                        type="tel"
+                                        {...register("phone", { onChange: keepDigitsOnly })}
                                     />
-                                    {errors.phone && <em>{errors.phone.message}</em>}
-                                </label>
+                                </div>
+                                {errors.phone && <em>{errors.phone.message}</em>}
+                            </label>
 
                                 <label className={styles["appointment-form__field"]}>
                                     <span>Email opcional</span>

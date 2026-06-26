@@ -113,7 +113,7 @@ add constraint customers_phone_unique unique (phone);
 
 Regla:
 
-- Reutilizar customer por `phone` al crear una reserva pública.
+- Reutilizar customer por `phone` al confirmar una reserva pública.
 - Guardar `phone` normalizado, usando únicamente dígitos.
 - La aplicación debe recuperar el customer existente si dos solicitudes concurrentes intentan crear el mismo teléfono.
 
@@ -129,7 +129,10 @@ Campos mínimos recomendados:
 
 ```txt
 id uuid primary key default gen_random_uuid()
-customer_id uuid not null references customers(id)
+customer_id uuid null references customers(id)
+guest_full_name text null
+guest_phone varchar null
+guest_email text null
 service_id uuid not null references services(id)
 appointment_date date not null
 start_time time not null
@@ -187,10 +190,14 @@ El flujo utilizado por la aplicación para nuevas reservas es:
 
 ```txt
 create_appointment_with_customer_atomic
+create_public_appointment_atomic
+confirm_appointment_atomic
 ```
 
-Esta función crea o reutiliza el customer y crea el turno en una única
-transacción, evitando customers huérfanos.
+`create_appointment_with_customer_atomic` se usa para turnos administrativos.
+`create_public_appointment_atomic` crea el turno público `pending` con datos
+temporales y sin customer. `confirm_appointment_atomic` crea o reutiliza el
+customer y confirma el turno en una única transacción.
 
 Los cambios de estado utilizan:
 
@@ -267,7 +274,10 @@ Ajustar según si la tabla ya existe o no.
 ```sql
 create table if not exists appointments (
   id uuid primary key default gen_random_uuid(),
-  customer_id uuid not null references customers(id),
+  customer_id uuid null references customers(id),
+  guest_full_name text null,
+  guest_phone varchar null,
+  guest_email text null,
   service_id uuid not null references services(id),
   appointment_date date not null,
   start_time time not null,

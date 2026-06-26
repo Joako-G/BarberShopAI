@@ -179,6 +179,17 @@
   box-shadow: var(--shadow-focus);
 }
 
+.phoneInput {
+  display: grid;
+  grid-template-columns: minmax(132px,.42fr) minmax(0,1fr);
+  gap: 8px;
+}
+
+.phoneInput select,
+.phoneInput input {
+  min-width: 0;
+}
+
 .formError {
   color: var(--error);
   font-size: 12px;
@@ -421,5 +432,9 @@
   .formActions {
     display: grid;
     grid-template-columns: 1fr 1fr;
+  }
+
+  .phoneInput {
+    grid-template-columns: 1fr;
   }
 }

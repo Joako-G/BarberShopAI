@@ -9,10 +9,9 @@ export const publicBookingSchema = z.object({
     phone: z
         .string()
         .trim()
-        .refine((value) => {
-            const digits = value.replace(/\D/g, "");
-            return digits.length >= 7 && digits.length <= 20;
-        }, "El teléfono debe contener entre 7 y 20 números"),
+        .regex(/^\d+$/, "Ingresá solo números")
+        .min(7, "El teléfono debe contener al menos 7 números")
+        .max(15, "El teléfono no puede superar los 15 números"),
     email: z
         .string()
         .trim()

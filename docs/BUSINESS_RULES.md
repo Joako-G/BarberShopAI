@@ -39,7 +39,8 @@ Los roles `barber` y `customer` pueden quedar documentados para futuras versione
 - El teléfono debe contener entre 7 y 20 dígitos.
 - Dos clientes no pueden compartir el mismo teléfono.
 - El email es opcional.
-- Si un cliente reserva nuevamente con el mismo teléfono, se debe reutilizar el customer existente.
+- Si un cliente confirmado reserva nuevamente con el mismo teléfono, se debe reutilizar el customer existente.
+- En la reserva pública el customer no se crea inmediatamente; los datos quedan en el turno como solicitante temporal hasta que el admin confirme.
 
 ---
 
@@ -106,6 +107,9 @@ Los turnos creados desde la reserva pública comienzan en:
 ```txt
 pending
 ```
+
+Estos turnos pueden tener `customer_id` nulo y datos temporales del solicitante.
+Al confirmar, el sistema crea o reutiliza el customer por teléfono.
 
 El admin puede editar únicamente:
 
@@ -195,9 +199,8 @@ transacción que crea o edita el turno. Las operaciones de una misma fecha se
 serializan con un advisory lock para impedir que dos solicitudes simultáneas
 ocupen el mismo horario.
 
-La creación o reutilización del customer y la creación del turno se ejecutan
-en una única transacción. Si la reserva falla, no debe quedar un customer nuevo
-sin turno.
+La reserva pública se crea en una transacción sin crear customer. La creación o
+reutilización del customer se ejecuta atómicamente al confirmar el turno.
 
 ---
 

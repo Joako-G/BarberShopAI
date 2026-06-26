@@ -14,6 +14,10 @@ function formatBookingDate(date: string): string {
     }).format(new Date(`${date}T12:00:00`));
 }
 
+function getAppointmentCustomerName(appointment: Appointment): string {
+    return appointment.customer?.full_name ?? appointment.guest_full_name ?? "Cliente pendiente";
+}
+
 export function PublicBookingPage() {
     const [appointment, setAppointment] = useState<Appointment | null>(null);
 
@@ -68,7 +72,7 @@ export function PublicBookingPage() {
                         </p>
                         <div className={styles["booking-success__detail"]}>
                             <span>Cliente</span>
-                            <strong>{appointment.customer.full_name}</strong>
+                            <strong>{getAppointmentCustomerName(appointment)}</strong>
                             <span>Estado</span>
                             <strong>Pendiente de confirmación</strong>
                         </div>
