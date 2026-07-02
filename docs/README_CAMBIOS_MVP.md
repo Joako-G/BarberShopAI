@@ -15,8 +15,8 @@ Este archivo debe ser la nueva fuente principal de verdad para el alcance actual
 - `BUSINESS_RULES.md`
 - `DATABASE_RULE.md`
 - `SECURITY.md`
-- `USE_CASES.md`
-- `MODULE_REFACTOR.md`
+- `USE_CASES/USE_CASES.md`
+- `ARCHITECTURE/MODULE_REFACTOR.md`
 
 ## Decisión principal
 

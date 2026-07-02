@@ -6,6 +6,7 @@ import { requireRole } from "../../../middlewares/require-role.middleware";
 const router = Router();
 
 router.get("/", authenticate, requireRole("admin"), profileController.getAll);
+router.get("/me", authenticate, profileController.getMe);
 router.get(
   "/:id",
   authenticate,

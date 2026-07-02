@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useDashboard } from "../hooks/useDashboard";
+import { SETTINGS_FALLBACK, useSettingsStore } from "../store/settingsStore";
 import { classNames } from "../utils/classNames";
 import sharedStyles from "../components/ui/styles/shared.module.css";
 import styles from "./DashboardPage.module.css";
@@ -14,7 +15,11 @@ const statusLabels: Record<string, string> = {
 
 export function DashboardPage() {
     const { stats, upcomingAppointments, loading, error } = useDashboard();
+    const settings = useSettingsStore((state) => state.settings);
     const navigate = useNavigate();
+
+    const systemName = settings?.system_name ?? SETTINGS_FALLBACK.systemName;
+    const businessName = settings?.business_name ?? SETTINGS_FALLBACK.businessName;
 
     if (loading) {
         return (
@@ -46,8 +51,8 @@ export function DashboardPage() {
             <header className={sharedStyles.pageHeader}>
                 <div>
                     <span className={sharedStyles.pageEyebrow}>Resumen operativo</span>
-                    <h1>Dashboard</h1>
-                    <p>Una vista limpia de la jornada y los próximos movimientos de tu barbería.</p>
+                    <h1>{systemName}</h1>
+                    <p>Una vista limpia de la jornada y los próximos movimientos de {businessName}.</p>
                 </div>
                 <button
                     className={classNames(sharedStyles.button, sharedStyles.buttonPrimary)}
@@ -141,3 +146,4 @@ export function DashboardPage() {
         </section>
     );
 }
+

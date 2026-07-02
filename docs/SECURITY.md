@@ -92,6 +92,11 @@ requireRole("admin")
 Endpoints:
 
 ```http
+GET /api/profiles/me
+
+GET /api/settings/general
+PUT /api/settings/general
+
 POST /api/services
 GET /api/services/admin
 PUT /api/services/:id
@@ -110,6 +115,9 @@ GET /api/customers
 POST /api/customers
 ```
 
+`GET /api/profiles/me` requiere `authenticate`. Las demás rutas HTTP de
+perfiles administrativos requieren `authenticate` y `requireRole("admin")`.
+
 ---
 
 # Protección de acciones administrativas
@@ -127,6 +135,7 @@ Solo el admin puede:
 - Completar turnos.
 - Marcar ausentes.
 - Ver clientes.
+- Ver y modificar configuración general del sistema.
 
 ---
 
@@ -145,6 +154,11 @@ Validar especialmente:
 - price
 - duration_minutes
 - buffer_minutes
+- system_name
+- business_name
+- business_type
+- email
+- address
 
 ---
 
@@ -177,7 +191,12 @@ cliente público de Supabase Auth. La lectura del rol y los datos de `profiles`
 se realiza internamente con `supabaseAdmin`; `anon` y `authenticated` no tienen
 acceso directo a la tabla `profiles`.
 
-Las rutas HTTP de perfiles requieren `authenticate` y `requireRole("admin")`.
+El módulo HTTP de `barbers` está deshabilitado para el MVP y no debe montarse en
+el router principal.
+
+La tabla `business_settings` no debe exponerse directamente a `anon` ni
+`authenticated`. La lectura y actualización se realizan únicamente desde los
+endpoints protegidos `/api/settings/general` mediante `supabaseAdmin`.
 
 Las funciones PostgreSQL:
 
@@ -223,6 +242,7 @@ No loguear:
 - Service role key.
 - Authorization headers.
 - Datos sensibles innecesarios.
+- URLs o configuración interna de Supabase en logs de producción.
 
 ---
 

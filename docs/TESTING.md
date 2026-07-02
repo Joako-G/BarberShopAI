@@ -48,7 +48,8 @@ appointments after verification.
 ### Authentication and authorization
 
 - [ ] Invalid login credentials show a clear error.
-- [ ] `/appointments`, `/customers`, `/services/admin` return `401` without token.
+- [ ] `/appointments`, `/customers`, `/services/admin`, `/settings` return `401` without token.
+- [ ] `/api/settings/general` returns `401` without token.
 - [ ] `/profiles` and `/profiles/:id` return `401` without token.
 - [ ] Admin routes work with a valid admin token.
 - [ ] Logging out prevents access to private pages.
@@ -74,7 +75,7 @@ appointments after verification.
 
 ### Status transitions
 
-- [ ] `pending` can be confirmed, cancelled or completed.
+- [ ] `pending` can be confirmed or cancelled.
 - [ ] `confirmed` can be cancelled, completed or marked `no_show`.
 - [ ] `no_show` cannot be applied from `pending`.
 - [ ] `completed`, `cancelled` and `no_show` cannot transition again.
@@ -95,6 +96,18 @@ appointments after verification.
 - [ ] Editing a service preserves fields not included in the form.
 - [ ] Deactivating a service removes it from public booking.
 - [ ] Inactive services cannot be used to create new appointments.
+
+### Settings
+
+- [ ] `/settings` is only accessible to an authenticated admin.
+- [ ] The form loads the current business settings.
+- [ ] Required fields show validation errors.
+- [ ] Invalid email shows a validation error.
+- [ ] Saving changes persists them in Supabase.
+- [ ] Reloading the panel keeps the saved values.
+- [ ] `system_name` is visible in the sidebar, header and dashboard.
+- [ ] Empty optional fields are stored and rendered consistently.
+- [ ] Working-hour logic remains unchanged.
 
 ### Regression and quality
 

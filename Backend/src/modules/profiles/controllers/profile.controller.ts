@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from "express";
+import { AuthenticatedRequest } from "../../../middlewares/auth.middleware";
 import {
   CreateProfileUseCase,
   UpdateProfileUseCase,
@@ -11,6 +12,7 @@ import {
   updateProfileSchema,
   profileIdSchema,
 } from "../types";
+import { UnauthorizedError } from "../../../shared/errors";
 import { success, created } from "../../../shared/utils";
 
 const createProfileUseCase = new CreateProfileUseCase();
@@ -24,6 +26,23 @@ export const profileController = {
     try {
       const profiles = await getProfilesUseCase.execute();
       res.json(success(profiles));
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  async getMe(
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      if (!req.userId) {
+        throw new UnauthorizedError("Authenticated user id is missing");
+      }
+
+      const profile = await getProfileByIdUseCase.execute(req.userId);
+      res.json(success(profile));
     } catch (err) {
       next(err);
     }

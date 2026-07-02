@@ -39,6 +39,70 @@ Requiere:
 authenticate
 ```
 
+Notas:
+
+- Devuelve el perfil asociado al token autenticado.
+- Debe declararse antes de `GET /api/profiles/:id` para evitar que `me` sea interpretado como id.
+
+---
+
+## Settings
+
+### Obtener configuración general
+
+```http
+GET /api/settings/general
+```
+
+Privado.
+
+Requiere:
+
+```txt
+authenticate
+requireRole("admin")
+```
+
+Devuelve la configuración general del sistema y negocio.
+
+---
+
+### Actualizar configuración general
+
+```http
+PUT /api/settings/general
+```
+
+Privado.
+
+Requiere:
+
+```txt
+authenticate
+requireRole("admin")
+```
+
+Body:
+
+```json
+{
+  "system_name": "BarberPro",
+  "business_name": "Barbería El Corte",
+  "business_type": "Barbería",
+  "description": "Turnos online para barbería.",
+  "phone": "3880000000",
+  "whatsapp": "3880000000",
+  "email": "contacto@barberia.com",
+  "address": "San Salvador de Jujuy"
+}
+```
+
+Reglas:
+
+- Solo el admin puede leer y modificar esta configuración.
+- Los campos opcionales vacíos se guardan como `null`.
+- No modifica horarios laborales, colores, mensajes ni redes sociales.
+
 ---
 
 ## Services
@@ -130,6 +194,11 @@ Requiere:
 authenticate
 requireRole("admin")
 ```
+
+Notas:
+
+- No existe `DELETE /api/services/:id` en el MVP.
+- Los servicios se pausan con `PATCH /api/services/:id/status` para conservar historial de turnos.
 
 ---
 

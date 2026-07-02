@@ -123,6 +123,10 @@ No implementar todavía:
 
 Si ya existen archivos de estos módulos, no es obligatorio eliminarlos. Pero no deben bloquear ni condicionar el MVP.
 
+En el estado actual del MVP, el módulo `barbers` puede permanecer en el código
+como referencia futura, pero sus rutas HTTP no deben exportarse ni montarse en
+`/api/barbers`.
+
 ---
 
 # Flujo recomendado
@@ -174,6 +178,9 @@ GetServiceByIdUseCase
 ListServicesUseCase
 ToggleServiceStatusUseCase
 ```
+
+No exponer `DeleteServiceUseCase` desde rutas HTTP del MVP. La baja de servicios
+se modela con `is_active`.
 
 ## Customers
 

@@ -16,6 +16,5 @@ router.get("/:id", serviceController.getById);
 router.post("/", authenticate, requireRole("admin"), serviceController.create);
 router.put("/:id", authenticate, requireRole("admin"), serviceController.update);
 router.patch("/:id/status", authenticate, requireRole("admin"), serviceController.toggleStatus);
-router.delete("/:id", authenticate, requireRole("admin"), serviceController.remove);
 
 export default router;

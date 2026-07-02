@@ -41,6 +41,9 @@ Los roles `barber` y `customer` pueden quedar documentados para futuras versione
 - El email es opcional.
 - Si un cliente confirmado reserva nuevamente con el mismo teléfono, se debe reutilizar el customer existente.
 - En la reserva pública el customer no se crea inmediatamente; los datos quedan en el turno como solicitante temporal hasta que el admin confirme.
+- En el MVP no se recomienda eliminar clientes físicamente. Si se necesita
+  ocultarlos más adelante, agregar una columna `deleted_at` o `is_active` y
+  aplicar borrado lógico para no romper el historial de turnos.
 
 ---
 
@@ -251,6 +254,9 @@ Lunes a sábado
 - Los turnos completados no deben eliminarse.
 - Los turnos cancelados tampoco deberían eliminarse físicamente.
 - Se debe cambiar el estado del turno en lugar de borrar registros históricos.
+- Los servicios no deben eliminarse desde la API del MVP; deben activarse o
+  desactivarse con `is_active`.
+- Los clientes vinculados a turnos deben conservarse para mantener trazabilidad.
 
 ---
 

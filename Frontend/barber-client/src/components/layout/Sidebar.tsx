@@ -1,6 +1,7 @@
 import { Menu } from "lucide-react";
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
+import { SETTINGS_FALLBACK, useSettingsStore } from "../../store/settingsStore";
 import { Button } from "../ui/button";
 import {
     Sheet,
@@ -16,17 +17,28 @@ const navigation = [
     { to: "/appointments", label: "Turnos", icon: "TU" },
     { to: "/customers", label: "Clientes", icon: "CL" },
     { to: "/services", label: "Servicios", icon: "SV" },
+    { to: "/settings", label: "Configuración", icon: "CF" },
 ];
 
 export function Sidebar() {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const settings = useSettingsStore((state) => state.settings);
+
+    const systemName = settings?.system_name ?? SETTINGS_FALLBACK.systemName;
+    const businessType = settings?.business_type ?? SETTINGS_FALLBACK.businessType;
+    const brandInitials = systemName
+        .split(" ")
+        .map((part) => part[0])
+        .join("")
+        .slice(0, 2)
+        .toUpperCase();
 
     const brand = (
         <div className={styles.brand}>
-            <span className={styles.brandMark}>BS</span>
+            <span className={styles.brandMark}>{brandInitials}</span>
             <div className={styles.brandCopy}>
-                <strong>BarberShop</strong>
-                <span>Aura Management</span>
+                <strong>{systemName}</strong>
+                <span>{businessType}</span>
             </div>
         </div>
     );
@@ -57,10 +69,10 @@ export function Sidebar() {
 
             <div className={styles.mobileBar}>
                 <div className={styles.mobileBrand}>
-                    <span className={styles.brandMark}>BS</span>
+                    <span className={styles.brandMark}>{brandInitials}</span>
                     <div className={styles.brandCopy}>
-                        <strong>BarberShop</strong>
-                        <span>Aura Management</span>
+                        <strong>{systemName}</strong>
+                        <span>{businessType}</span>
                     </div>
                 </div>
 
@@ -79,7 +91,7 @@ export function Sidebar() {
                     <SheetContent className={styles.mobileSheet} side="right">
                         <SheetHeader className={styles.mobileSheetHeader}>
                             <SheetTitle className={styles.mobileSheetTitle}>
-                                BarberShop
+                                {systemName}
                             </SheetTitle>
                         </SheetHeader>
                         {navigationList}

@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../store/authStore";
+import { SETTINGS_FALLBACK, useSettingsStore } from "../../store/settingsStore";
 import { classNames } from "../../utils/classNames";
 import sharedStyles from "../ui/styles/shared.module.css";
 import styles from "./Header.module.css";
@@ -7,7 +8,11 @@ import styles from "./Header.module.css";
 export function Header() {
     const profile = useAuthStore((state) => state.profile);
     const logout = useAuthStore((state) => state.logout);
+    const settings = useSettingsStore((state) => state.settings);
     const navigate = useNavigate();
+
+    const systemName = settings?.system_name ?? SETTINGS_FALLBACK.systemName;
+    const businessName = settings?.business_name ?? SETTINGS_FALLBACK.businessName;
 
     const initials =
         profile?.full_name
@@ -25,8 +30,8 @@ export function Header() {
     return (
         <header className={styles.header}>
             <div className={styles.context}>
-                <span>Centro de control</span>
-                <strong>Organización clara, servicio impecable.</strong>
+                <span>{businessName}</span>
+                <strong>{systemName}</strong>
             </div>
 
             <div className={styles.user}>
@@ -48,3 +53,4 @@ export function Header() {
         </header>
     );
 }
+

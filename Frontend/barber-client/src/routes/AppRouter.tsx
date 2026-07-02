@@ -14,6 +14,7 @@ import { NewAppointmentPage } from "../pages/NewAppointmentPage";
 import { EditAppointmentPage } from "../pages/EditAppointmentPage";
 import { PublicBookingPage } from "../pages/PublicBookingPage";
 import { NotFoundPage } from "../pages/NotFoundPage";
+import { SettingsPage } from "../pages/SettingsPage";
 
 export function AppRouter() {
     return (
@@ -39,6 +40,8 @@ export function AppRouter() {
                         <Route path="/appointments" element={<AppointmentsPage />} />
                         <Route path="/appointments/new" element={<NewAppointmentPage />} />
                         <Route path="/appointments/:id/edit" element={<EditAppointmentPage />} />
+
+                        <Route path="/settings" element={<SettingsPage />} />
                     </Route>
                 </Route>
 

@@ -85,6 +85,46 @@ Reglas:
 
 # Tabla nueva requerida
 
+## business_settings
+
+Tabla de configuración general del sistema y negocio.
+
+Debe existir un único registro.
+
+Campos:
+
+```txt
+id uuid primary key default gen_random_uuid()
+system_name text not null
+business_name text not null
+business_type text null
+description text null
+phone text null
+whatsapp text null
+email text null
+address text null
+created_at timestamptz default now()
+updated_at timestamptz default now()
+```
+
+Reglas:
+
+- `system_name` identifica el nombre visible del panel.
+- `business_name` identifica el negocio.
+- Los campos opcionales se guardan como `null` cuando están vacíos.
+- No usar esta tabla todavía para horarios laborales, colores, mensajes ni redes sociales.
+- RLS debe estar activo.
+- `anon` y `authenticated` no deben tener acceso directo.
+- El backend accede mediante `supabaseAdmin`.
+
+La migración reproducible se encuentra en:
+
+```txt
+supabase/migrations/20260702_business_settings.sql
+```
+
+---
+
 ## customers
 
 Actualmente no existe una tabla `customers`.

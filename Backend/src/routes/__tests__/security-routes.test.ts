@@ -9,6 +9,8 @@ describe("private route security", () => {
     ["get", "/api/appointments"],
     ["get", "/api/profiles"],
     ["get", "/api/profiles/00000000-0000-4000-8000-000000000001"],
+    ["get", "/api/settings/general"],
+    ["put", "/api/settings/general"],
     ["post", "/api/appointments"],
   ] as const)("rejects unauthenticated %s %s", async (method, path) => {
     const response = await request(app)[method](path);

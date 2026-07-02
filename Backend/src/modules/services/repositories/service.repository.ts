@@ -77,9 +77,4 @@ export const serviceRepository = {
     return data;
   },
 
-  async remove(id: string): Promise<void> {
-    const { error } = await supabaseAdmin.from("services").delete().eq("id", id);
-
-    if (error) throw error;
-  },
 };

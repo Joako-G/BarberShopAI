@@ -5,7 +5,6 @@ import {
   GetServiceByIdUseCase,
   GetServicesUseCase,
   GetAdminServicesUseCase,
-  DeleteServiceUseCase,
   ToggleServiceStatusUseCase,
 } from "../use-cases";
 import {
@@ -21,7 +20,6 @@ const updateServiceUseCase = new UpdateServiceUseCase();
 const getServiceByIdUseCase = new GetServiceByIdUseCase();
 const getServicesUseCase = new GetServicesUseCase();
 const getAdminServicesUseCase = new GetAdminServicesUseCase();
-const deleteServiceUseCase = new DeleteServiceUseCase();
 const toggleServiceStatusUseCase = new ToggleServiceStatusUseCase();
 
 export const serviceController = {
@@ -73,16 +71,6 @@ export const serviceController = {
       const dto = updateServiceSchema.parse(req.body);
       const service = await updateServiceUseCase.execute(id, dto);
       res.json(success(service));
-    } catch (err) {
-      next(err);
-    }
-  },
-
-  async remove(req: Request, res: Response, next: NextFunction): Promise<void> {
-    try {
-      const { id } = serviceIdSchema.parse(req.params);
-      await deleteServiceUseCase.execute(id);
-      res.status(204).send();
     } catch (err) {
       next(err);
     }

@@ -65,6 +65,29 @@ El objetivo actual es implementar un MVP simple para una barbería de una sola p
 
 ---
 
+## CU-03A — Gestionar configuración general
+
+**Actor principal:** Admin  
+**Objetivo:** Modificar los datos generales del sistema y negocio.
+
+### Flujo principal
+
+1. El admin ingresa a `/settings`.
+2. El sistema consulta `GET /api/settings/general`.
+3. El formulario muestra la configuración actual.
+4. El admin modifica los datos.
+5. El sistema valida los datos.
+6. El sistema guarda mediante `PUT /api/settings/general`.
+7. El panel reutiliza `system_name` y datos generales actualizados.
+
+### Reglas
+
+- Requiere autenticación y rol `admin`.
+- No modifica horarios laborales.
+- No modifica colores, mensajes, redes sociales ni configuración avanzada de turnos.
+
+---
+
 ## CU-04 — Listar servicios activos
 
 **Actor principal:** Cliente / público  
@@ -116,11 +139,11 @@ El objetivo actual es implementar un MVP simple para una barbería de una sola p
 ## CU-07 — Crear o reutilizar cliente
 
 **Actor principal:** Sistema  
-**Objetivo:** Registrar clientes sin login al crear una reserva.
+**Objetivo:** Registrar clientes sin login cuando el admin crea o confirma un turno.
 
 ### Flujo principal
 
-1. El cliente ingresa nombre, teléfono y email opcional.
+1. El sistema recibe nombre, teléfono y email opcional desde el panel admin o desde un turno público pendiente.
 2. El sistema busca un customer existente por teléfono.
 3. Si existe, lo reutiliza.
 4. Si no existe, crea uno nuevo.
@@ -147,8 +170,8 @@ El objetivo actual es implementar un MVP simple para una barbería de una sola p
 5. El backend valida servicio activo.
 6. Calcula `end_time`.
 7. Valida que no haya superposición.
-8. Crea o reutiliza customer.
-9. Crea turno con estado `pending`.
+8. Guarda nombre, teléfono y email como datos temporales del turno.
+9. Crea turno con estado `pending` sin crear customer.
 10. Devuelve confirmación.
 
 ### Reglas
@@ -158,6 +181,7 @@ El objetivo actual es implementar un MVP simple para una barbería de una sola p
 - No permite horarios pasados.
 - No permite superposición.
 - El turno se crea como `pending`.
+- El customer se crea o reutiliza recién cuando el admin confirma el turno.
 
 ---
 
@@ -284,11 +308,12 @@ No implementar todavía:
 |---|---|
 | CU-01 Iniciar sesión como admin | POST /api/auth/login |
 | CU-02 Obtener perfil autenticado | GET /api/profiles/me |
+| CU-03A Gestionar configuración general | GET/PUT /api/settings/general |
 | CU-03 Crear servicio | POST /api/services |
 | CU-04 Listar servicios activos | GET /api/services |
 | CU-05 Editar servicio | PUT /api/services/:id |
 | CU-06 Activar/desactivar servicio | PATCH /api/services/:id/status |
-| CU-07 Crear o reutilizar cliente | Interno desde reserva |
+| CU-07 Crear o reutilizar cliente | Interno desde creación admin o confirmación |
 | CU-08 Reservar turno público | POST /api/appointments/public |
 | CU-09 Consultar horarios disponibles | GET /api/available-slots |
 | CU-10 Listar turnos | GET /api/appointments |

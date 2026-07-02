@@ -30,10 +30,10 @@ docs/BUSINESS_RULES.md
 docs/DATABASE_RULE.md
 docs/API_SPEC.md
 docs/SECURITY.md
-docs/USE_CASES.md
+docs/USE_CASES/USE_CASES.md
 docs/UI_GUIDELINES.md
 docs/ROADMAP.md
-docs/MODULE_REFACTOR.md
+docs/ARCHITECTURE/MODULE_REFACTOR.md
 ```
 
 If conflicts exist:
