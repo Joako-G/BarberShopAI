@@ -329,8 +329,7 @@ export function PublicBookingForm({ onSuccess }: PublicBookingFormProps) {
                     <div className={styles["booking-summary-line"]}>
                         <span>{selectedService.name}</span>
                         <strong>
-                            {selectedService.duration_minutes + selectedService.buffer_minutes} min
-                            reservados
+                            {selectedService.duration_minutes} min de servicio
                         </strong>
                     </div>
                 )}

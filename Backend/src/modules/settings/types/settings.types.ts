@@ -128,3 +128,43 @@ export interface BusinessHour {
   created_at: string;
   updated_at: string;
 }
+
+export const slotIntervalMinutesSchema = z.union([
+  z.literal(5),
+  z.literal(10),
+  z.literal(15),
+  z.literal(20),
+  z.literal(30),
+  z.literal(60),
+]);
+
+export const updateAppointmentSettingsSchema = z.object({
+  slot_interval_minutes: slotIntervalMinutesSchema,
+  default_buffer_minutes: z
+    .number()
+    .int("default_buffer_minutes must be an integer")
+    .min(0, "default_buffer_minutes must be at least 0")
+    .max(120, "default_buffer_minutes cannot exceed 120"),
+  min_booking_notice_minutes: z
+    .number()
+    .int("min_booking_notice_minutes must be an integer")
+    .min(0, "min_booking_notice_minutes must be at least 0")
+    .max(10080, "min_booking_notice_minutes cannot exceed 10080"),
+  max_booking_days_ahead: z
+    .number()
+    .int("max_booking_days_ahead must be an integer")
+    .min(1, "max_booking_days_ahead must be at least 1")
+    .max(365, "max_booking_days_ahead cannot exceed 365"),
+  auto_confirm_appointments: z.boolean(),
+  allow_pending_appointments: z.boolean(),
+});
+
+export type UpdateAppointmentSettingsDto = z.infer<
+  typeof updateAppointmentSettingsSchema
+>;
+
+export interface AppointmentSettings extends UpdateAppointmentSettingsDto {
+  id: string;
+  created_at: string;
+  updated_at: string;
+}

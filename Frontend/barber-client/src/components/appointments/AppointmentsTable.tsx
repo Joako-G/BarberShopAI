@@ -57,6 +57,19 @@ function formatTime(time: string): string {
     return time.slice(0, 5);
 }
 
+function getTimeMinutes(time: string): number {
+    const [hours, minutes] = formatTime(time).split(":").map(Number);
+
+    return hours * 60 + minutes;
+}
+
+function getAppointmentBufferMinutes(appointment: Appointment): number {
+    const occupiedMinutes =
+        getTimeMinutes(appointment.end_time) - getTimeMinutes(appointment.start_time);
+
+    return Math.max(occupiedMinutes - appointment.service.duration_minutes, 0);
+}
+
 function formatMessageDate(date: string): string {
     const [year, month, day] = date.split("-").map(Number);
 
@@ -120,6 +133,7 @@ export function AppointmentsTable({
                         const isUpdating = updatingId === appointment.id;
                         const availableActions = actionsByStatus[appointment.status];
                         const appointmentCustomer = getAppointmentCustomer(appointment);
+                        const bufferMinutes = getAppointmentBufferMinutes(appointment);
                         const whatsAppUrl =
                             appointment.status === "pending"
                                 ? buildWhatsAppUrl(appointment)
@@ -138,7 +152,7 @@ export function AppointmentsTable({
                                         <strong>{appointment.service.name}</strong>
                                         <span>
                                             ({appointment.service.duration_minutes} min +{" "}
-                                            {appointment.service.buffer_minutes} min)
+                                            {bufferMinutes} min)
                                         </span>
                                     </div>
                                 </td>

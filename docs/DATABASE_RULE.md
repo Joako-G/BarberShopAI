@@ -125,6 +125,47 @@ supabase/migrations/20260702_business_settings.sql
 
 ---
 
+## appointment_settings
+
+Tabla de configuración general de reglas de turnos.
+
+Debe existir un único registro.
+
+Campos:
+
+```txt
+id uuid primary key default gen_random_uuid()
+slot_interval_minutes int not null default 15
+default_buffer_minutes int not null default 15
+min_booking_notice_minutes int not null default 0
+max_booking_days_ahead int not null default 30
+auto_confirm_appointments boolean not null default false
+allow_pending_appointments boolean not null default true
+created_at timestamptz default now()
+updated_at timestamptz default now()
+```
+
+Reglas:
+
+- `slot_interval_minutes` define cada cuánto se generan slots disponibles.
+- `default_buffer_minutes` es el buffer global real usado por disponibilidad y creación de turnos.
+- `services.buffer_minutes` queda como campo legacy y no se usa para la lógica nueva.
+- `min_booking_notice_minutes` evita reservas demasiado cercanas.
+- `max_booking_days_ahead` limita la anticipación máxima.
+- `auto_confirm_appointments` y `allow_pending_appointments` afectan reservas públicas.
+- Los turnos creados por admin se crean `confirmed`.
+- RLS debe estar activo.
+- `anon` y `authenticated` no deben tener acceso directo.
+- El backend accede mediante `supabaseAdmin`.
+
+La migración reproducible se encuentra en:
+
+```txt
+supabase/migrations/20260702_appointment_settings.sql
+```
+
+---
+
 ## customers
 
 Actualmente no existe una tabla `customers`.

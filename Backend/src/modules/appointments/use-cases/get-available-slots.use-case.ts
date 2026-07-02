@@ -1,16 +1,21 @@
 import { appointmentRepository } from "../repositories";
 import { serviceRepository } from "../../services/repositories";
-import { GetBusinessHourForDateUseCase } from "../../settings/use-cases";
+import {
+  GetAppointmentSettingsUseCase,
+  GetBusinessHourForDateUseCase,
+} from "../../settings/use-cases";
 import { NotFoundError, ValidationError } from "../../../shared/errors";
 import { getBusinessDateTimeParts } from "../../../shared/utils";
 import {
   formatMinutesAsTime,
   getServiceTotalMinutes,
+  isBeforeBookingNotice,
+  isBeyondMaxBookingDate,
   parseTimeToMinutes,
-  SLOT_INTERVAL_MINUTES,
 } from "./appointment-time.utils";
 
 const getBusinessHourForDateUseCase = new GetBusinessHourForDateUseCase();
+const getAppointmentSettingsUseCase = new GetAppointmentSettingsUseCase();
 
 export class GetAvailableSlotsUseCase {
   async execute(
@@ -30,9 +35,14 @@ export class GetAvailableSlotsUseCase {
 
     const current = getBusinessDateTimeParts();
     const todayStr = current.date;
+    const appointmentSettings = await getAppointmentSettingsUseCase.execute();
 
     if (date < todayStr) {
       throw new ValidationError("Cannot check availability for past dates");
+    }
+
+    if (isBeyondMaxBookingDate(date, appointmentSettings.max_booking_days_ahead)) {
+      return [];
     }
 
     const workingHours = await getBusinessHourForDateUseCase.execute(date);
@@ -41,7 +51,10 @@ export class GetAvailableSlotsUseCase {
       return [];
     }
 
-    const totalMinutes = getServiceTotalMinutes(service);
+    const totalMinutes = getServiceTotalMinutes(
+      service,
+      appointmentSettings.default_buffer_minutes
+    );
     const workStartMinutes = parseTimeToMinutes(workingHours.start_time);
     const workEndMinutes = parseTimeToMinutes(workingHours.end_time);
 
@@ -55,7 +68,7 @@ export class GetAvailableSlotsUseCase {
     for (
       let slotStartMinutes = workStartMinutes;
       slotStartMinutes < workEndMinutes;
-      slotStartMinutes += SLOT_INTERVAL_MINUTES
+      slotStartMinutes += appointmentSettings.slot_interval_minutes
     ) {
       const slotEndMinutes = slotStartMinutes + totalMinutes;
 
@@ -64,8 +77,11 @@ export class GetAvailableSlotsUseCase {
       }
 
       if (
-        date === todayStr &&
-        slotStartMinutes <= current.hour * 60 + current.minute
+        isBeforeBookingNotice(
+          date,
+          slotStartMinutes,
+          appointmentSettings.min_booking_notice_minutes
+        )
       ) {
         continue;
       }

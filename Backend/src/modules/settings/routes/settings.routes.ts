@@ -33,4 +33,18 @@ router.put(
   settingsController.updateBusinessHours
 );
 
+router.get(
+  "/appointments",
+  authenticate,
+  requireRole("admin"),
+  settingsController.getAppointmentSettings
+);
+
+router.put(
+  "/appointments",
+  authenticate,
+  requireRole("admin"),
+  settingsController.updateAppointmentSettings
+);
+
 export default router;

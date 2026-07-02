@@ -1,17 +1,25 @@
 import { Request, Response, NextFunction } from "express";
 import {
+  GetAppointmentSettingsUseCase,
   GetBusinessHoursUseCase,
   GetGeneralSettingsUseCase,
+  UpdateAppointmentSettingsUseCase,
   UpdateBusinessHoursUseCase,
   UpdateGeneralSettingsUseCase,
 } from "../use-cases";
-import { updateBusinessHoursSchema, updateGeneralSettingsSchema } from "../types";
+import {
+  updateAppointmentSettingsSchema,
+  updateBusinessHoursSchema,
+  updateGeneralSettingsSchema,
+} from "../types";
 import { success } from "../../../shared/utils";
 
 const getGeneralSettingsUseCase = new GetGeneralSettingsUseCase();
 const updateGeneralSettingsUseCase = new UpdateGeneralSettingsUseCase();
 const getBusinessHoursUseCase = new GetBusinessHoursUseCase();
 const updateBusinessHoursUseCase = new UpdateBusinessHoursUseCase();
+const getAppointmentSettingsUseCase = new GetAppointmentSettingsUseCase();
+const updateAppointmentSettingsUseCase = new UpdateAppointmentSettingsUseCase();
 
 export const settingsController = {
   async getGeneral(
@@ -68,6 +76,36 @@ export const settingsController = {
       res.json(success({
         message: "Horarios laborales actualizados correctamente",
         hours,
+      }));
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  async getAppointmentSettings(
+    _req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const settings = await getAppointmentSettingsUseCase.execute();
+      res.json(success(settings));
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  async updateAppointmentSettings(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const dto = updateAppointmentSettingsSchema.parse(req.body);
+      const settings = await updateAppointmentSettingsUseCase.execute(dto);
+      res.json(success({
+        message: "Configuración de turnos actualizada correctamente",
+        settings,
       }));
     } catch (err) {
       next(err);

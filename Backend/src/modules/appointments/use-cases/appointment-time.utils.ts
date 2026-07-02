@@ -1,10 +1,8 @@
 import { ValidationError } from "../../../shared/errors";
-import { getCalendarDayOfWeek } from "../../../shared/utils";
+import { getBusinessDateTimeParts, getCalendarDayOfWeek } from "../../../shared/utils";
 
 export const WORK_START_MINUTES = 9 * 60;
 export const WORK_END_MINUTES = 18 * 60;
-export const SLOT_INTERVAL_MINUTES = 15;
-
 interface WorkingHours {
   is_open: boolean;
   start_time: string | null;
@@ -39,6 +37,50 @@ export function formatMinutesAsTime(totalMinutes: number): string {
   return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
 }
 
+export function addDaysToDate(date: string, days: number): string {
+  const [year, month, day] = date.split("-").map(Number);
+  const value = new Date(Date.UTC(year, month - 1, day));
+  value.setUTCDate(value.getUTCDate() + days);
+
+  return value.toISOString().slice(0, 10);
+}
+
+export function getBookingCutoffDateTime(
+  noticeMinutes: number,
+  instant = new Date()
+): { date: string; minutes: number } {
+  const current = getBusinessDateTimeParts(instant);
+  const totalMinutes = current.hour * 60 + current.minute + noticeMinutes;
+  const daysToAdd = Math.floor(totalMinutes / (24 * 60));
+
+  return {
+    date: addDaysToDate(current.date, daysToAdd),
+    minutes: totalMinutes % (24 * 60),
+  };
+}
+
+export function isBeyondMaxBookingDate(
+  date: string,
+  maxBookingDaysAhead: number,
+  instant = new Date()
+): boolean {
+  const current = getBusinessDateTimeParts(instant);
+  const maxDate = addDaysToDate(current.date, maxBookingDaysAhead);
+
+  return date > maxDate;
+}
+
+export function isBeforeBookingNotice(
+  date: string,
+  startMinutes: number,
+  noticeMinutes: number,
+  instant = new Date()
+): boolean {
+  const cutoff = getBookingCutoffDateTime(noticeMinutes, instant);
+
+  return date < cutoff.date || (date === cutoff.date && startMinutes <= cutoff.minutes);
+}
+
 export function isWorkingDay(date: string): boolean {
   const dayOfWeek = getCalendarDayOfWeek(date);
   return dayOfWeek >= 1 && dayOfWeek <= 6;
@@ -69,17 +111,16 @@ export function assertWithinWorkingHours(
 
 export function getServiceTotalMinutes(service: {
   duration_minutes: unknown;
-  buffer_minutes: unknown;
-}): number {
+}, defaultBufferMinutes: unknown): number {
   const durationMinutes = Number(service.duration_minutes);
-  const bufferMinutes = Number(service.buffer_minutes);
+  const bufferMinutes = Number(defaultBufferMinutes);
 
   if (!Number.isInteger(durationMinutes) || durationMinutes <= 0) {
     throw new ValidationError("Service duration_minutes must be a positive integer");
   }
 
   if (!Number.isInteger(bufferMinutes) || bufferMinutes < 0) {
-    throw new ValidationError("Service buffer_minutes must be zero or a positive integer");
+    throw new ValidationError("Default buffer must be zero or a positive integer");
   }
 
   return durationMinutes + bufferMinutes;

@@ -40,6 +40,8 @@ const appointment = {
 
 describe("appointment editing", () => {
   beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2030-06-30T12:00:00.000Z"));
     vi.spyOn(appointmentRepository, "findById").mockResolvedValue(appointment);
     vi.spyOn(appointmentRepository, "updateDetailsAtomic").mockResolvedValue(
       appointment
@@ -48,6 +50,17 @@ describe("appointment editing", () => {
     vi.spyOn(serviceRepository, "findById").mockResolvedValue(
       appointment.service
     );
+    vi.spyOn(settingsRepository, "findAppointmentSettings").mockResolvedValue({
+      id: "settings",
+      slot_interval_minutes: 15,
+      default_buffer_minutes: 15,
+      min_booking_notice_minutes: 0,
+      max_booking_days_ahead: 30,
+      auto_confirm_appointments: false,
+      allow_pending_appointments: true,
+      created_at: "",
+      updated_at: "",
+    });
     vi.spyOn(settingsRepository, "findBusinessHours").mockResolvedValue([
       { id: "0", day_of_week: 0, is_open: false, start_time: null, end_time: null, created_at: "", updated_at: "" },
       { id: "1", day_of_week: 1, is_open: true, start_time: "09:00", end_time: "18:00", created_at: "", updated_at: "" },

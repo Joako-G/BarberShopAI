@@ -172,6 +172,64 @@ Reglas:
 
 ---
 
+### Obtener configuración de turnos
+
+```http
+GET /api/settings/appointments
+```
+
+Privado.
+
+Requiere:
+
+```txt
+authenticate
+requireRole("admin")
+```
+
+Devuelve las reglas generales usadas para disponibilidad y reservas.
+
+---
+
+### Actualizar configuración de turnos
+
+```http
+PUT /api/settings/appointments
+```
+
+Privado.
+
+Requiere:
+
+```txt
+authenticate
+requireRole("admin")
+```
+
+Body:
+
+```json
+{
+  "slot_interval_minutes": 15,
+  "default_buffer_minutes": 15,
+  "min_booking_notice_minutes": 0,
+  "max_booking_days_ahead": 30,
+  "auto_confirm_appointments": false,
+  "allow_pending_appointments": true
+}
+```
+
+Reglas:
+
+- `slot_interval_minutes` permite 5, 10, 15, 20, 30 o 60.
+- `default_buffer_minutes` debe estar entre 0 y 120.
+- `min_booking_notice_minutes` debe estar entre 0 y 10080.
+- `max_booking_days_ahead` debe estar entre 1 y 365.
+- `auto_confirm_appointments` y `allow_pending_appointments` afectan reservas públicas.
+- Los turnos creados por admin se crean `confirmed`.
+
+---
+
 ## Services
 
 ### Listar servicios activos
@@ -362,7 +420,7 @@ Reglas:
 - Por compatibilidad, si se envía `customer_id` sin `customer_mode`, se
   interpreta como un customer existente.
 - El servicio debe existir y estar activo.
-- Calcula `end_time` con `duration_minutes + buffer_minutes`.
+- Calcula `end_time` con `duration_minutes + appointment_settings.default_buffer_minutes`.
 - Valida fecha, horario laboral y superposición.
 - Crea el turno con estado `confirmed`.
 
@@ -394,10 +452,11 @@ Reglas:
 
 - No requiere login.
 - Guarda nombre, teléfono y email en el turno como datos temporales.
-- Calcula `end_time` con `duration_minutes + buffer_minutes`.
+- Calcula `end_time` con `duration_minutes + appointment_settings.default_buffer_minutes`.
 - Valida superposición.
 - La validación definitiva y la inserción se ejecutan atómicamente en PostgreSQL.
-- Crea el turno en estado `pending` sin crear customer.
+- Crea el turno en estado `pending` por defecto sin crear customer.
+- Si `auto_confirm_appointments` está activo o no se permiten pendientes, crea el turno `confirmed` y crea o reutiliza el customer.
 
 ---
 

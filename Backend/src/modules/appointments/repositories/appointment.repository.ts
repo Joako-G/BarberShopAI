@@ -212,6 +212,7 @@ export const appointmentRepository = {
     service_id: string;
     appointment_date: string;
     start_time: string;
+    status: AppointmentStatus;
     notes?: string | null;
   }): Promise<AppointmentWithDetails> {
     const { data, error } = await supabaseAdmin
@@ -223,6 +224,7 @@ export const appointmentRepository = {
         p_service_id: dto.service_id,
         p_appointment_date: dto.appointment_date,
         p_start_time: dto.start_time,
+        p_status: dto.status,
         p_notes: dto.notes ?? null,
       });
 

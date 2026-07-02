@@ -11,19 +11,22 @@ import {
 describe("appointment time rules", () => {
   it("calculates duration plus buffer", () => {
     expect(
-      getServiceTotalMinutes({
-        duration_minutes: 45,
-        buffer_minutes: 15,
-      })
+      getServiceTotalMinutes(
+        {
+          duration_minutes: 45,
+          buffer_minutes: 99,
+        },
+        15
+      )
     ).toBe(60);
   });
 
   it("rejects invalid duration and buffer values", () => {
     expect(() =>
-      getServiceTotalMinutes({ duration_minutes: 0, buffer_minutes: 15 })
+      getServiceTotalMinutes({ duration_minutes: 0, buffer_minutes: 15 }, 15)
     ).toThrow(ValidationError);
     expect(() =>
-      getServiceTotalMinutes({ duration_minutes: 30, buffer_minutes: -1 })
+      getServiceTotalMinutes({ duration_minutes: 30, buffer_minutes: 15 }, -1)
     ).toThrow(ValidationError);
   });
 

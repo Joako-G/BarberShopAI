@@ -383,7 +383,7 @@ export function AppointmentForm({
                         <option value="">Seleccionar servicio</option>
                         {selectableServices.map((service) => (
                             <option key={service.id} value={service.id}>
-                                {service.name} · {service.duration_minutes + service.buffer_minutes} min
+                                {service.name} · {service.duration_minutes} min
                                 {!service.is_active ? " · Inactivo" : ""}
                             </option>
                         ))}

@@ -99,3 +99,36 @@ export const businessHoursSchema = z
 
 export type BusinessHoursFormData = z.infer<typeof businessHoursSchema>;
 export type BusinessHoursFormInput = z.input<typeof businessHoursSchema>;
+
+export const slotIntervalMinutesSchema = z.union([
+    z.literal(5),
+    z.literal(10),
+    z.literal(15),
+    z.literal(20),
+    z.literal(30),
+    z.literal(60),
+]);
+
+export const appointmentSettingsSchema = z.object({
+    slot_interval_minutes: slotIntervalMinutesSchema,
+    default_buffer_minutes: z
+        .number()
+        .int("El buffer debe ser un número entero")
+        .min(0, "El buffer mínimo es 0")
+        .max(120, "El buffer máximo es 120"),
+    min_booking_notice_minutes: z
+        .number()
+        .int("La anticipación debe ser un número entero")
+        .min(0, "La anticipación mínima es 0")
+        .max(10080, "La anticipación máxima es 10080 minutos"),
+    max_booking_days_ahead: z
+        .number()
+        .int("Los días máximos deben ser un número entero")
+        .min(1, "Debe permitir al menos 1 día")
+        .max(365, "No puede superar 365 días"),
+    auto_confirm_appointments: z.boolean(),
+    allow_pending_appointments: z.boolean(),
+});
+
+export type AppointmentSettingsFormData = z.infer<typeof appointmentSettingsSchema>;
+export type AppointmentSettingsFormInput = z.input<typeof appointmentSettingsSchema>;

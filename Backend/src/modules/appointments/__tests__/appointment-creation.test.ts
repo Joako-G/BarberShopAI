@@ -46,8 +46,21 @@ const insertedAppointment = {
 
 describe("appointment creation", () => {
   beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2030-06-30T12:00:00.000Z"));
     vi.spyOn(serviceRepository, "findById").mockResolvedValue(service);
     vi.spyOn(appointmentRepository, "findOverlapping").mockResolvedValue([]);
+    vi.spyOn(settingsRepository, "findAppointmentSettings").mockResolvedValue({
+      id: "settings",
+      slot_interval_minutes: 15,
+      default_buffer_minutes: 15,
+      min_booking_notice_minutes: 0,
+      max_booking_days_ahead: 30,
+      auto_confirm_appointments: false,
+      allow_pending_appointments: true,
+      created_at: "",
+      updated_at: "",
+    });
     vi.spyOn(settingsRepository, "findBusinessHours").mockResolvedValue([
       { id: "0", day_of_week: 0, is_open: false, start_time: null, end_time: null, created_at: "", updated_at: "" },
       { id: "1", day_of_week: 1, is_open: true, start_time: "09:00", end_time: "18:00", created_at: "", updated_at: "" },
@@ -91,6 +104,7 @@ describe("appointment creation", () => {
       expect.objectContaining({
         full_name: customer.full_name,
         phone: customer.phone,
+        status: "pending",
       })
     );
     expect(appointmentRepository.createWithCustomerAtomic).not.toHaveBeenCalled();
@@ -165,5 +179,33 @@ describe("appointment creation", () => {
       statusCode: 409,
       message: "El horario seleccionado ya no está disponible.",
     });
+  });
+
+  it("auto-confirms public appointments when configured", async () => {
+    vi.mocked(settingsRepository.findAppointmentSettings).mockResolvedValue({
+      id: "settings",
+      slot_interval_minutes: 15,
+      default_buffer_minutes: 15,
+      min_booking_notice_minutes: 0,
+      max_booking_days_ahead: 30,
+      auto_confirm_appointments: true,
+      allow_pending_appointments: true,
+      created_at: "",
+      updated_at: "",
+    });
+
+    await new CreatePublicAppointmentUseCase().execute({
+      full_name: customer.full_name,
+      phone: customer.phone,
+      email: null,
+      service_id: service.id,
+      appointment_date: "2030-07-01",
+      start_time: "10:00",
+      notes: null,
+    });
+
+    expect(appointmentRepository.createPublicAtomic).toHaveBeenCalledWith(
+      expect.objectContaining({ status: "confirmed" })
+    );
   });
 });

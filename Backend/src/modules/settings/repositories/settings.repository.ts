@@ -1,8 +1,10 @@
 import { supabaseAdmin } from "../../../config/supabase";
 import {
+  AppointmentSettings,
   BusinessHour,
   BusinessHourDto,
   BusinessSettings,
+  UpdateAppointmentSettingsDto,
   UpdateGeneralSettingsDto,
 } from "../types";
 
@@ -87,6 +89,48 @@ export const settingsRepository = {
 
     if (error) throw error;
     return (data ?? []).map(normalizeBusinessHour);
+  },
+
+  async findAppointmentSettings(): Promise<AppointmentSettings | null> {
+    const { data, error } = await supabaseAdmin
+      .from("appointment_settings")
+      .select("*")
+      .limit(1)
+      .maybeSingle();
+
+    if (error) throw error;
+    return data;
+  },
+
+  async createDefaultAppointmentSettings(
+    settings: UpdateAppointmentSettingsDto
+  ): Promise<AppointmentSettings> {
+    const { data, error } = await supabaseAdmin
+      .from("appointment_settings")
+      .insert(settings)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  async updateAppointmentSettings(
+    id: string,
+    dto: UpdateAppointmentSettingsDto
+  ): Promise<AppointmentSettings> {
+    const { data, error } = await supabaseAdmin
+      .from("appointment_settings")
+      .update({
+        ...dto,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
   },
 };
 

@@ -98,6 +98,8 @@ GET /api/settings/general
 PUT /api/settings/general
 GET /api/settings/business-hours
 PUT /api/settings/business-hours
+GET /api/settings/appointments
+PUT /api/settings/appointments
 
 POST /api/services
 GET /api/services/admin
@@ -138,6 +140,8 @@ Solo el admin puede:
 - Marcar ausentes.
 - Ver clientes.
 - Ver y modificar configuración general del sistema.
+- Ver y modificar horarios laborales.
+- Ver y modificar configuración de turnos.
 
 ---
 
