@@ -28,3 +28,28 @@ export interface UpdateBusinessSettingsResponse {
     settings: BusinessSettings;
 }
 
+export interface BusinessHour {
+    id: string;
+    day_of_week: number;
+    is_open: boolean;
+    start_time: string | null;
+    end_time: string | null;
+    created_at: string;
+    updated_at: string;
+}
+
+export interface BusinessHourRequest {
+    day_of_week: number;
+    is_open: boolean;
+    start_time?: string | null;
+    end_time?: string | null;
+}
+
+export interface UpdateBusinessHoursRequest {
+    hours: BusinessHourRequest[];
+}
+
+export interface UpdateBusinessHoursResponse {
+    message: string;
+    hours: BusinessHour[];
+}

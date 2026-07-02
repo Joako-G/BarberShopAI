@@ -19,5 +19,18 @@ router.put(
   settingsController.updateGeneral
 );
 
-export default router;
+router.get(
+  "/business-hours",
+  authenticate,
+  requireRole("admin"),
+  settingsController.getBusinessHours
+);
 
+router.put(
+  "/business-hours",
+  authenticate,
+  requireRole("admin"),
+  settingsController.updateBusinessHours
+);
+
+export default router;

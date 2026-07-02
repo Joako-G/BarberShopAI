@@ -105,6 +105,73 @@ Reglas:
 
 ---
 
+### Obtener horarios laborales
+
+```http
+GET /api/settings/business-hours
+```
+
+Privado.
+
+Requiere:
+
+```txt
+authenticate
+requireRole("admin")
+```
+
+Devuelve los 7 dias de la semana configurados para calcular disponibilidad.
+
+---
+
+### Actualizar horarios laborales
+
+```http
+PUT /api/settings/business-hours
+```
+
+Privado.
+
+Requiere:
+
+```txt
+authenticate
+requireRole("admin")
+```
+
+Body:
+
+```json
+{
+  "hours": [
+    {
+      "day_of_week": 0,
+      "is_open": false,
+      "start_time": null,
+      "end_time": null
+    },
+    {
+      "day_of_week": 1,
+      "is_open": true,
+      "start_time": "09:00",
+      "end_time": "22:00"
+    }
+  ]
+}
+```
+
+Reglas:
+
+- Deben enviarse exactamente 7 dias.
+- `day_of_week` debe ir de 0 a 6.
+- No puede haber dias repetidos.
+- Si `is_open` es `false`, `start_time` y `end_time` pueden ser `null`.
+- Si `is_open` es `true`, `start_time` y `end_time` son obligatorios.
+- `start_time` debe ser menor que `end_time`.
+- El formato de hora debe ser `HH:MM`.
+
+---
+
 ## Services
 
 ### Listar servicios activos

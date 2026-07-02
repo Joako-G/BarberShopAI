@@ -37,3 +37,65 @@ export const settingsSchema = z.object({
 
 export type SettingsFormData = z.infer<typeof settingsSchema>;
 export type SettingsFormInput = z.input<typeof settingsSchema>;
+
+const timeSchema = z
+    .string()
+    .regex(/^([01]\d|2[0-3]):[0-5]\d$/, "Usá el formato HH:MM");
+
+export const businessHourSchema = z
+    .object({
+        day_of_week: z.number().int().min(0).max(6),
+        is_open: z.boolean(),
+        start_time: timeSchema.nullable().optional(),
+        end_time: timeSchema.nullable().optional(),
+    })
+    .superRefine((value, ctx) => {
+        if (!value.is_open) return;
+
+        if (!value.start_time) {
+            ctx.addIssue({
+                code: "custom",
+                path: ["start_time"],
+                message: "Ingresá una hora de inicio",
+            });
+        }
+
+        if (!value.end_time) {
+            ctx.addIssue({
+                code: "custom",
+                path: ["end_time"],
+                message: "Ingresá una hora de cierre",
+            });
+        }
+
+        if (value.start_time && value.end_time && value.start_time >= value.end_time) {
+            ctx.addIssue({
+                code: "custom",
+                path: ["end_time"],
+                message: "El cierre debe ser posterior al inicio",
+            });
+        }
+    });
+
+export const businessHoursSchema = z
+    .object({
+        hours: z.array(businessHourSchema).length(7, "Deben existir exactamente 7 días"),
+    })
+    .superRefine((value, ctx) => {
+        const days = new Set<number>();
+
+        value.hours.forEach((hour, index) => {
+            if (days.has(hour.day_of_week)) {
+                ctx.addIssue({
+                    code: "custom",
+                    path: ["hours", index, "day_of_week"],
+                    message: "El día no puede repetirse",
+                });
+            }
+
+            days.add(hour.day_of_week);
+        });
+    });
+
+export type BusinessHoursFormData = z.infer<typeof businessHoursSchema>;
+export type BusinessHoursFormInput = z.input<typeof businessHoursSchema>;

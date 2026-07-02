@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { appointmentRepository } from "../repositories";
 import { serviceRepository } from "../../services/repositories";
+import { settingsRepository } from "../../settings/repositories";
 import { CreateAdminAppointmentUseCase } from "../use-cases/create-admin-appointment.use-case";
 import { CreatePublicAppointmentUseCase } from "../use-cases/create-public-appointment.use-case";
 
@@ -47,6 +48,15 @@ describe("appointment creation", () => {
   beforeEach(() => {
     vi.spyOn(serviceRepository, "findById").mockResolvedValue(service);
     vi.spyOn(appointmentRepository, "findOverlapping").mockResolvedValue([]);
+    vi.spyOn(settingsRepository, "findBusinessHours").mockResolvedValue([
+      { id: "0", day_of_week: 0, is_open: false, start_time: null, end_time: null, created_at: "", updated_at: "" },
+      { id: "1", day_of_week: 1, is_open: true, start_time: "09:00", end_time: "18:00", created_at: "", updated_at: "" },
+      { id: "2", day_of_week: 2, is_open: true, start_time: "09:00", end_time: "18:00", created_at: "", updated_at: "" },
+      { id: "3", day_of_week: 3, is_open: true, start_time: "09:00", end_time: "18:00", created_at: "", updated_at: "" },
+      { id: "4", day_of_week: 4, is_open: true, start_time: "09:00", end_time: "18:00", created_at: "", updated_at: "" },
+      { id: "5", day_of_week: 5, is_open: true, start_time: "09:00", end_time: "18:00", created_at: "", updated_at: "" },
+      { id: "6", day_of_week: 6, is_open: true, start_time: "09:00", end_time: "18:00", created_at: "", updated_at: "" },
+    ]);
     vi.spyOn(
       appointmentRepository,
       "createPublicAtomic"

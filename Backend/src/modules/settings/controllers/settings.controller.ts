@@ -1,13 +1,17 @@
 import { Request, Response, NextFunction } from "express";
 import {
+  GetBusinessHoursUseCase,
   GetGeneralSettingsUseCase,
+  UpdateBusinessHoursUseCase,
   UpdateGeneralSettingsUseCase,
 } from "../use-cases";
-import { updateGeneralSettingsSchema } from "../types";
+import { updateBusinessHoursSchema, updateGeneralSettingsSchema } from "../types";
 import { success } from "../../../shared/utils";
 
 const getGeneralSettingsUseCase = new GetGeneralSettingsUseCase();
 const updateGeneralSettingsUseCase = new UpdateGeneralSettingsUseCase();
+const getBusinessHoursUseCase = new GetBusinessHoursUseCase();
+const updateBusinessHoursUseCase = new UpdateBusinessHoursUseCase();
 
 export const settingsController = {
   async getGeneral(
@@ -39,5 +43,34 @@ export const settingsController = {
       next(err);
     }
   },
-};
 
+  async getBusinessHours(
+    _req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const hours = await getBusinessHoursUseCase.execute();
+      res.json(success(hours));
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  async updateBusinessHours(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const dto = updateBusinessHoursSchema.parse(req.body);
+      const hours = await updateBusinessHoursUseCase.execute(dto);
+      res.json(success({
+        message: "Horarios laborales actualizados correctamente",
+        hours,
+      }));
+    } catch (err) {
+      next(err);
+    }
+  },
+};

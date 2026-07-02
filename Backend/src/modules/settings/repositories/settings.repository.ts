@@ -1,5 +1,10 @@
 import { supabaseAdmin } from "../../../config/supabase";
-import { BusinessSettings, UpdateGeneralSettingsDto } from "../types";
+import {
+  BusinessHour,
+  BusinessHourDto,
+  BusinessSettings,
+  UpdateGeneralSettingsDto,
+} from "../types";
 
 const DEFAULT_SETTINGS: Omit<UpdateGeneralSettingsDto, "email"> & {
   email: string | null;
@@ -54,5 +59,45 @@ export const settingsRepository = {
     if (error) throw error;
     return data;
   },
+
+  async findBusinessHours(): Promise<BusinessHour[]> {
+    const { data, error } = await supabaseAdmin
+      .from("business_hours")
+      .select("*")
+      .order("day_of_week", { ascending: true });
+
+    if (error) throw error;
+    return (data ?? []).map(normalizeBusinessHour);
+  },
+
+  async upsertBusinessHours(hours: BusinessHourDto[]): Promise<BusinessHour[]> {
+    const records = hours.map((hour) => ({
+      day_of_week: hour.day_of_week,
+      is_open: hour.is_open,
+      start_time: hour.is_open ? hour.start_time : null,
+      end_time: hour.is_open ? hour.end_time : null,
+      updated_at: new Date().toISOString(),
+    }));
+
+    const { data, error } = await supabaseAdmin
+      .from("business_hours")
+      .upsert(records, { onConflict: "day_of_week" })
+      .select("*")
+      .order("day_of_week", { ascending: true });
+
+    if (error) throw error;
+    return (data ?? []).map(normalizeBusinessHour);
+  },
 };
 
+function normalizeBusinessHour(hour: BusinessHour): BusinessHour {
+  return {
+    ...hour,
+    start_time: normalizeTime(hour.start_time),
+    end_time: normalizeTime(hour.end_time),
+  };
+}
+
+function normalizeTime(value: string | null): string | null {
+  return value ? value.slice(0, 5) : null;
+}

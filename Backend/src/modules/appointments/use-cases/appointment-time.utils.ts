@@ -5,6 +5,12 @@ export const WORK_START_MINUTES = 9 * 60;
 export const WORK_END_MINUTES = 18 * 60;
 export const SLOT_INTERVAL_MINUTES = 15;
 
+interface WorkingHours {
+  is_open: boolean;
+  start_time: string | null;
+  end_time: string | null;
+}
+
 export function parseTimeToMinutes(time: string): number {
   const [hours, minutes] = time.split(":").map(Number);
 
@@ -38,9 +44,26 @@ export function isWorkingDay(date: string): boolean {
   return dayOfWeek >= 1 && dayOfWeek <= 6;
 }
 
-export function assertWithinWorkingHours(startMinutes: number, endMinutes: number): void {
-  if (startMinutes < WORK_START_MINUTES || endMinutes > WORK_END_MINUTES) {
-    throw new ValidationError("Appointment must be between 09:00 and 18:00");
+export function assertWithinWorkingHours(
+  startMinutes: number,
+  endMinutes: number,
+  workingHours: WorkingHours = {
+    is_open: true,
+    start_time: formatMinutesAsTime(WORK_START_MINUTES),
+    end_time: formatMinutesAsTime(WORK_END_MINUTES),
+  }
+): void {
+  if (!workingHours.is_open || !workingHours.start_time || !workingHours.end_time) {
+    throw new ValidationError("Appointments are not available for this day");
+  }
+
+  const workStartMinutes = parseTimeToMinutes(workingHours.start_time);
+  const workEndMinutes = parseTimeToMinutes(workingHours.end_time);
+
+  if (startMinutes < workStartMinutes || endMinutes > workEndMinutes) {
+    throw new ValidationError(
+      `Appointment must be between ${workingHours.start_time} and ${workingHours.end_time}`
+    );
   }
 }
 

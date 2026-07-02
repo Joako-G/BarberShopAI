@@ -96,6 +96,8 @@ GET /api/profiles/me
 
 GET /api/settings/general
 PUT /api/settings/general
+GET /api/settings/business-hours
+PUT /api/settings/business-hours
 
 POST /api/services
 GET /api/services/admin

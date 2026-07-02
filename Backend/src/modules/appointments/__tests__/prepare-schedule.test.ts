@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ValidationError } from "../../../shared/errors";
 import { appointmentRepository } from "../repositories";
 import { serviceRepository } from "../../services/repositories";
+import { settingsRepository } from "../../settings/repositories";
 import { PrepareAppointmentScheduleUseCase } from "../use-cases/prepare-appointment-schedule.use-case";
 
 const service = {
@@ -21,6 +22,15 @@ describe("schedule preparation", () => {
     vi.setSystemTime(new Date("2026-06-25T12:00:00.000Z"));
     vi.spyOn(serviceRepository, "findById").mockResolvedValue(service);
     vi.spyOn(appointmentRepository, "findOverlapping").mockResolvedValue([]);
+    vi.spyOn(settingsRepository, "findBusinessHours").mockResolvedValue([
+      { id: "0", day_of_week: 0, is_open: false, start_time: null, end_time: null, created_at: "", updated_at: "" },
+      { id: "1", day_of_week: 1, is_open: true, start_time: "09:00", end_time: "18:00", created_at: "", updated_at: "" },
+      { id: "2", day_of_week: 2, is_open: true, start_time: "09:00", end_time: "18:00", created_at: "", updated_at: "" },
+      { id: "3", day_of_week: 3, is_open: true, start_time: "09:00", end_time: "18:00", created_at: "", updated_at: "" },
+      { id: "4", day_of_week: 4, is_open: true, start_time: "09:00", end_time: "18:00", created_at: "", updated_at: "" },
+      { id: "5", day_of_week: 5, is_open: true, start_time: "09:00", end_time: "18:00", created_at: "", updated_at: "" },
+      { id: "6", day_of_week: 6, is_open: true, start_time: "09:00", end_time: "18:00", created_at: "", updated_at: "" },
+    ]);
   });
 
   it("calculates end_time and validates availability", async () => {

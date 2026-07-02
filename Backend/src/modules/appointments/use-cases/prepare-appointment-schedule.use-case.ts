@@ -1,11 +1,11 @@
 import { NotFoundError, ValidationError } from "../../../shared/errors";
 import { isBusinessDateTimePastOrNow } from "../../../shared/utils";
 import { serviceRepository } from "../../services/repositories";
+import { GetBusinessHourForDateUseCase } from "../../settings/use-cases";
 import {
   assertWithinWorkingHours,
   formatMinutesAsTime,
   getServiceTotalMinutes,
-  isWorkingDay,
   parseTimeToMinutes,
 } from "./appointment-time.utils";
 import { ValidateAppointmentConflictUseCase } from "./validate-appointment-conflict.use-case";
@@ -23,14 +23,19 @@ interface PreparedAppointmentSchedule {
 
 const validateAppointmentConflictUseCase =
   new ValidateAppointmentConflictUseCase();
+const getBusinessHourForDateUseCase = new GetBusinessHourForDateUseCase();
 
 export class PrepareAppointmentScheduleUseCase {
   async execute(
     input: PrepareAppointmentScheduleInput
   ): Promise<PreparedAppointmentSchedule> {
-    if (!isWorkingDay(input.appointmentDate)) {
+    const workingHours = await getBusinessHourForDateUseCase.execute(
+      input.appointmentDate
+    );
+
+    if (!workingHours.is_open || !workingHours.start_time || !workingHours.end_time) {
       throw new ValidationError(
-        "Appointments are available Monday through Saturday"
+        "Appointments are not available for this day"
       );
     }
 
@@ -55,7 +60,7 @@ export class PrepareAppointmentScheduleUseCase {
 
     const startMinutes = parseTimeToMinutes(input.startTime);
     const endMinutes = startMinutes + getServiceTotalMinutes(service);
-    assertWithinWorkingHours(startMinutes, endMinutes);
+    assertWithinWorkingHours(startMinutes, endMinutes, workingHours);
 
     const endTime = formatMinutesAsTime(endMinutes);
 

@@ -1,16 +1,16 @@
 import { appointmentRepository } from "../repositories";
 import { serviceRepository } from "../../services/repositories";
+import { GetBusinessHourForDateUseCase } from "../../settings/use-cases";
 import { NotFoundError, ValidationError } from "../../../shared/errors";
 import { getBusinessDateTimeParts } from "../../../shared/utils";
 import {
   formatMinutesAsTime,
   getServiceTotalMinutes,
-  isWorkingDay,
   parseTimeToMinutes,
   SLOT_INTERVAL_MINUTES,
-  WORK_END_MINUTES,
-  WORK_START_MINUTES,
 } from "./appointment-time.utils";
+
+const getBusinessHourForDateUseCase = new GetBusinessHourForDateUseCase();
 
 export class GetAvailableSlotsUseCase {
   async execute(
@@ -35,11 +35,15 @@ export class GetAvailableSlotsUseCase {
       throw new ValidationError("Cannot check availability for past dates");
     }
 
-    if (!isWorkingDay(date)) {
+    const workingHours = await getBusinessHourForDateUseCase.execute(date);
+
+    if (!workingHours.is_open || !workingHours.start_time || !workingHours.end_time) {
       return [];
     }
 
     const totalMinutes = getServiceTotalMinutes(service);
+    const workStartMinutes = parseTimeToMinutes(workingHours.start_time);
+    const workEndMinutes = parseTimeToMinutes(workingHours.end_time);
 
     const appointments = await appointmentRepository.findByDate(
       date,
@@ -49,13 +53,13 @@ export class GetAvailableSlotsUseCase {
     const slots: string[] = [];
 
     for (
-      let slotStartMinutes = WORK_START_MINUTES;
-      slotStartMinutes < WORK_END_MINUTES;
+      let slotStartMinutes = workStartMinutes;
+      slotStartMinutes < workEndMinutes;
       slotStartMinutes += SLOT_INTERVAL_MINUTES
     ) {
       const slotEndMinutes = slotStartMinutes + totalMinutes;
 
-      if (slotEndMinutes > WORK_END_MINUTES) {
+      if (slotEndMinutes > workEndMinutes) {
         break;
       }
 
