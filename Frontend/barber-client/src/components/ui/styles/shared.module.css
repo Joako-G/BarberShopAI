@@ -42,9 +42,10 @@
 .card {
   position: relative;
   overflow: hidden;
-  border: 1px solid rgba(0,101,144,.11);
+  border: 1px solid var(--outline-variant);
   border-radius: var(--radius-lg);
-  background: rgba(255,255,255,.9);
+  color: var(--on-surface);
+  background: color-mix(in srgb, var(--surface-lowest) 92%, transparent);
   box-shadow: var(--shadow-card);
 }
 
@@ -53,7 +54,7 @@
   position: absolute;
   inset: 0 0 auto;
   height: 1px;
-  background: linear-gradient(90deg,transparent,rgba(110,198,255,.7),transparent);
+  background: linear-gradient(90deg,transparent,var(--primary-container),transparent);
 }
 
 .cardHeader {
@@ -62,7 +63,7 @@
   justify-content: space-between;
   gap: 16px;
   padding: 22px 24px;
-  border-bottom: 1px solid rgba(191,199,208,.42);
+  border-bottom: 1px solid var(--outline-variant);
 }
 
 .cardHeader h2,
@@ -101,15 +102,15 @@
 }
 
 .buttonPrimary {
-  color: #fff;
-  background: linear-gradient(135deg,var(--primary),#1684b2);
-  box-shadow: 0 10px 22px rgba(0,101,144,.18);
+  color: var(--surface);
+  background: linear-gradient(135deg,var(--primary),var(--tertiary));
+  box-shadow: 0 10px 22px color-mix(in srgb, var(--primary) 18%, transparent);
 }
 
 .buttonSecondary {
   color: var(--secondary);
-  border-color: rgba(69,95,135,.26);
-  background: rgba(255,255,255,.78);
+  border-color: var(--outline-variant);
+  background: color-mix(in srgb, var(--surface-lowest) 78%, transparent);
 }
 
 .buttonDanger {
@@ -126,6 +127,46 @@
 
 .formCard {
   max-width: 900px;
+}
+
+.settingsTabs {
+  display: flex;
+  gap: 8px;
+  max-width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-lg);
+  padding: 6px;
+  background: color-mix(in srgb, var(--surface-lowest) 80%, transparent);
+  box-shadow: var(--shadow-card);
+  scrollbar-width: thin;
+}
+
+.settingsTab {
+  flex: 0 0 auto;
+  min-height: 40px;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  padding: 9px 14px;
+  color: var(--on-surface-variant);
+  background: transparent;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 150ms ease;
+  white-space: nowrap;
+}
+
+.settingsTab:hover {
+  color: var(--on-surface);
+  background: color-mix(in srgb, var(--primary) 8%, transparent);
+}
+
+.settingsTabActive {
+  color: var(--surface);
+  border-color: color-mix(in srgb, var(--primary) 38%, transparent);
+  background: linear-gradient(135deg, var(--primary), var(--tertiary));
+  box-shadow: 0 8px 18px color-mix(in srgb, var(--primary) 16%, transparent);
 }
 
 .formGrid {
@@ -158,11 +199,11 @@
 .formField textarea {
   width: 100%;
   min-height: 46px;
-  border: 1px solid rgba(69,95,135,.2);
+  border: 1px solid var(--outline-variant);
   border-radius: var(--radius);
   padding: 11px 13px;
   color: var(--on-surface);
-  background: rgba(255,255,255,.9);
+  background: color-mix(in srgb, var(--surface-container-high) 92%, transparent);
   transition: 150ms ease;
 }
 
@@ -206,7 +247,7 @@
   gap: 10px;
   margin-top: 26px;
   padding-top: 20px;
-  border-top: 1px solid rgba(191,199,208,.42);
+  border-top: 1px solid var(--outline-variant);
 }
 
 .tableShell {
@@ -222,8 +263,8 @@
 .dataTable th {
   padding: 14px 20px;
   color: var(--outline);
-  border-bottom: 1px solid rgba(191,199,208,.5);
-  background: rgba(239,244,249,.7);
+  border-bottom: 1px solid var(--outline-variant);
+  background: color-mix(in srgb, var(--surface-container-high) 76%, transparent);
   font-family: var(--font-mono);
   font-size: 10px;
   font-weight: 600;
@@ -234,7 +275,7 @@
 
 .dataTable td {
   padding: 17px 20px;
-  border-bottom: 1px solid rgba(191,199,208,.34);
+  border-bottom: 1px solid var(--outline-variant);
   vertical-align: middle;
 }
 
@@ -243,7 +284,7 @@
 }
 
 .dataTable tbody tr:hover {
-  background: rgba(110,198,255,.08);
+  background: color-mix(in srgb, var(--primary) 8%, transparent);
 }
 
 .dataTable tbody tr:last-child td {
@@ -277,11 +318,12 @@
   align-items: center;
   gap: 6px;
   width: fit-content;
+  border: 1px solid currentColor;
   border-radius: 999px;
-  padding: 6px 9px;
+  padding: 6px 10px;
   font-family: var(--font-mono);
   font-size: 10px;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: .04em;
   text-transform: uppercase;
 }
@@ -295,23 +337,28 @@
 }
 
 .statusSuccess {
-  color: var(--success);
-  background: var(--success-container);
+  color: #0f5132;
+  background: color-mix(in srgb, var(--success-container) 78%, #ffffff);
 }
 
 .statusWarning {
-  color: var(--warning);
-  background: var(--warning-container);
+  color: #6b4500;
+  background: color-mix(in srgb, var(--warning-container) 82%, #ffffff);
 }
 
 .statusError {
-  color: var(--error);
-  background: var(--error-container);
+  color: #8f1111;
+  background: color-mix(in srgb, var(--error-container) 82%, #ffffff);
 }
 
 .statusInfo {
-  color: var(--on-primary-container);
-  background: rgba(110,198,255,.28);
+  color: var(--surface);
+  background: var(--primary);
+}
+
+.statusNeutral {
+  color: var(--on-surface);
+  background: color-mix(in srgb, var(--surface-container-highest) 80%, #ffffff);
 }
 
 .emptyState,
@@ -337,10 +384,77 @@
 .loadingSpinner {
   width: 34px;
   height: 34px;
-  border: 3px solid rgba(0,101,144,.16);
+  border: 3px solid color-mix(in srgb, var(--primary) 16%, transparent);
   border-top-color: var(--primary);
   border-radius: 50%;
   animation: spin 700ms linear infinite;
+}
+
+.colorInputGroup {
+  display: grid;
+  grid-template-columns: 54px minmax(0, 1fr);
+  gap: 10px;
+}
+
+.colorSwatchInput {
+  min-width: 0;
+  padding: 4px !important;
+  cursor: pointer;
+}
+
+.colorTextInput {
+  font-family: var(--font-mono);
+}
+
+.appearancePreview {
+  margin-top: 24px;
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-lg);
+  padding: 18px;
+  color: var(--on-surface);
+  background: var(--surface);
+}
+
+.appearancePreviewCard {
+  display: grid;
+  gap: 12px;
+  max-width: 520px;
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  background: var(--surface-lowest);
+  box-shadow: 0 18px 40px color-mix(in srgb, var(--primary) 10%, transparent);
+}
+
+.appearancePreviewCard h3 {
+  margin: 0;
+  color: var(--on-surface);
+  font-size: 22px;
+}
+
+.appearancePreviewCard p {
+  margin: 0;
+  color: var(--on-surface-variant);
+  line-height: 1.5;
+}
+
+.appearancePreviewBadge {
+  width: fit-content;
+  border-radius: 999px;
+  padding: 6px 10px;
+  color: var(--surface);
+  background: var(--tertiary);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.appearancePreviewActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .notice {

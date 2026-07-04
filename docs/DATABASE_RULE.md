@@ -166,6 +166,47 @@ supabase/migrations/20260702_appointment_settings.sql
 
 ---
 
+## appearance_settings
+
+Tabla de configuración visual del panel administrativo.
+
+Debe existir un único registro.
+
+Campos:
+
+```txt
+id uuid primary key default gen_random_uuid()
+singleton boolean not null default true
+theme_mode text not null default 'dark'
+primary_color text not null default '#75CFFF'
+secondary_color text not null default '#94A3B8'
+accent_color text not null default '#D4AF37'
+background_color text not null default '#07111F'
+text_color text not null default '#F8FAFC'
+border_radius int not null default 12
+created_at timestamptz default now()
+updated_at timestamptz default now()
+```
+
+Reglas:
+
+- `theme_mode` debe ser `dark` o `light`.
+- Los colores deben usar formato hexadecimal `#RRGGBB`.
+- `border_radius` debe estar entre 0 y 32.
+- `singleton` evita más de un registro de configuración.
+- RLS debe estar activo.
+- `anon` y `authenticated` no deben tener acceso directo.
+- El backend accede mediante `supabaseAdmin`.
+- La configuración se aplica al panel administrativo con CSS variables.
+
+La migración reproducible se encuentra en:
+
+```txt
+supabase/migrations/20260702_appearance_settings.sql
+```
+
+---
+
 ## customers
 
 Actualmente no existe una tabla `customers`.

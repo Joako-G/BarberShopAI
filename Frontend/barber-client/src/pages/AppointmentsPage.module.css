@@ -314,38 +314,39 @@
 
 .appointment-status {
     width: fit-content;
+    border: 1px solid currentColor;
     border-radius: 999px;
-    padding: 6px 9px;
+    padding: 6px 10px;
     font-family: var(--font-mono);
     font-size: 9px;
-    font-weight: 600;
+    font-weight: 700;
     letter-spacing: 0.04em;
     text-transform: uppercase;
 }
 
 .appointment-status--pending {
-    color: var(--warning);
-    background: var(--warning-container);
+    color: #6b4500;
+    background: color-mix(in srgb, var(--warning-container) 82%, #ffffff);
 }
 
 .appointment-status--confirmed {
-    color: var(--on-primary-container);
-    background: rgba(110, 198, 255, 0.28);
+    color: var(--surface);
+    background: var(--primary);
 }
 
 .appointment-status--completed {
-    color: var(--success);
-    background: var(--success-container);
+    color: #0f5132;
+    background: color-mix(in srgb, var(--success-container) 78%, #ffffff);
 }
 
 .appointment-status--cancelled {
-    color: var(--error);
-    background: var(--error-container);
+    color: #8f1111;
+    background: color-mix(in srgb, var(--error-container) 82%, #ffffff);
 }
 
 .appointment-status--no_show {
-    color: #5b4965;
-    background: #eee5f3;
+    color: var(--on-surface);
+    background: color-mix(in srgb, var(--surface-container-highest) 80%, #ffffff);
 }
 
 .appointments-actions {

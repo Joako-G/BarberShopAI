@@ -13,6 +13,14 @@ const statusLabels: Record<string, string> = {
     no_show: "Ausente",
 };
 
+const statusClasses: Record<string, string> = {
+    pending: sharedStyles.statusWarning,
+    confirmed: sharedStyles.statusInfo,
+    completed: sharedStyles.statusSuccess,
+    cancelled: sharedStyles.statusError,
+    no_show: sharedStyles.statusNeutral,
+};
+
 export function DashboardPage() {
     const { stats, upcomingAppointments, loading, error } = useDashboard();
     const settings = useSettingsStore((state) => state.settings);
@@ -114,7 +122,7 @@ export function DashboardPage() {
                                                 <span className={sharedStyles.tableSecondary}>{appointment.start_time.slice(0, 5)}</span>
                                             </td>
                                             <td data-label="Estado">
-                                                <span className={classNames(sharedStyles.statusChip, sharedStyles.statusInfo)}>
+                                                <span className={classNames(sharedStyles.statusChip, statusClasses[appointment.status] ?? sharedStyles.statusInfo)}>
                                                     {statusLabels[appointment.status] ?? appointment.status}
                                                 </span>
                                             </td>
@@ -146,4 +154,3 @@ export function DashboardPage() {
         </section>
     );
 }
-

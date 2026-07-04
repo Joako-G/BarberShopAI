@@ -4,12 +4,14 @@ import sharedStyles from "../ui/styles/shared.module.css";
 
 interface Props {
     services: Service[];
+    defaultBufferMinutes: number;
     handleToggleService: (id: string, isActive: boolean, serviceName: string) => void;
     handleEditService: (id: string) => void;
 }
 
 export function ServicesTable({
     services,
+    defaultBufferMinutes,
     handleToggleService,
     handleEditService,
 }: Props) {
@@ -35,7 +37,9 @@ export function ServicesTable({
                             <td data-label="Precio">${service.price}</td>
                             <td data-label="Duración">
                                 {service.duration_minutes} min
-                                <span className={sharedStyles.tableSecondary}>+ {service.buffer_minutes} min de margen</span>
+                                <span className={sharedStyles.tableSecondary}>
+                                    + {defaultBufferMinutes} min de limpieza
+                                </span>
                             </td>
                             <td data-label="Estado">
                                 <span className={classNames(sharedStyles.statusChip, service.is_active ? sharedStyles.statusSuccess : sharedStyles.statusError)}>

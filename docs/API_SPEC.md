@@ -230,6 +230,62 @@ Reglas:
 
 ---
 
+### Obtener configuración de apariencia
+
+```http
+GET /api/settings/appearance
+```
+
+Privado.
+
+Requiere:
+
+```txt
+authenticate
+requireRole("admin")
+```
+
+Devuelve los colores, modo visual y radio de bordes usados por el panel administrativo.
+
+---
+
+### Actualizar configuración de apariencia
+
+```http
+PUT /api/settings/appearance
+```
+
+Privado.
+
+Requiere:
+
+```txt
+authenticate
+requireRole("admin")
+```
+
+Body:
+
+```json
+{
+  "theme_mode": "dark",
+  "primary_color": "#75CFFF",
+  "secondary_color": "#94A3B8",
+  "accent_color": "#D4AF37",
+  "background_color": "#07111F",
+  "text_color": "#F8FAFC",
+  "border_radius": 12
+}
+```
+
+Reglas:
+
+- `theme_mode` debe ser `dark` o `light`.
+- Los colores deben usar formato hexadecimal `#RRGGBB`.
+- `border_radius` debe ser entero entre 0 y 32.
+
+---
+
 ## Services
 
 ### Listar servicios activos

@@ -5,6 +5,7 @@ import { ConfirmDialog } from "../components/ui/ConfirmDialog";
 import sharedStyles from "../components/ui/styles/shared.module.css";
 import { notifyError, notifySuccess } from "../services/notifications";
 import { getServices, toggleState } from "../services/serviceApi";
+import { getAppointmentSettings } from "../services/settingsApi";
 import type { Service } from "../types/service";
 import { classNames } from "../utils/classNames";
 
@@ -18,6 +19,7 @@ export function ServicesPage() {
     const [services, setServices] = useState<Service[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [defaultBufferMinutes, setDefaultBufferMinutes] = useState(0);
     const [pendingToggle, setPendingToggle] = useState<PendingServiceToggle | null>(null);
     const [updatingService, setUpdatingService] = useState(false);
     const navigate = useNavigate();
@@ -26,7 +28,13 @@ export function ServicesPage() {
         const requestId = window.setTimeout(() => {
             const loadServices = async () => {
                 try {
-                    setServices(await getServices());
+                    const [servicesData, appointmentSettings] = await Promise.all([
+                        getServices(),
+                        getAppointmentSettings(),
+                    ]);
+
+                    setServices(servicesData);
+                    setDefaultBufferMinutes(appointmentSettings.default_buffer_minutes);
                 } catch {
                     setError("No se pudieron cargar los servicios.");
                 } finally {
@@ -137,6 +145,7 @@ export function ServicesPage() {
                 ) : (
                     <ServicesTable
                         services={services}
+                        defaultBufferMinutes={defaultBufferMinutes}
                         handleEditService={(id) => navigate(`/services/${id}/edit`)}
                         handleToggleService={handleToggleService}
                     />

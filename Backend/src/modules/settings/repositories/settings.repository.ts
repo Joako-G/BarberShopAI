@@ -1,9 +1,11 @@
 import { supabaseAdmin } from "../../../config/supabase";
 import {
+  AppearanceSettings,
   AppointmentSettings,
   BusinessHour,
   BusinessHourDto,
   BusinessSettings,
+  UpdateAppearanceSettingsDto,
   UpdateAppointmentSettingsDto,
   UpdateGeneralSettingsDto,
 } from "../types";
@@ -121,6 +123,48 @@ export const settingsRepository = {
   ): Promise<AppointmentSettings> {
     const { data, error } = await supabaseAdmin
       .from("appointment_settings")
+      .update({
+        ...dto,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  async findAppearanceSettings(): Promise<AppearanceSettings | null> {
+    const { data, error } = await supabaseAdmin
+      .from("appearance_settings")
+      .select("*")
+      .limit(1)
+      .maybeSingle();
+
+    if (error) throw error;
+    return data;
+  },
+
+  async createDefaultAppearanceSettings(
+    settings: UpdateAppearanceSettingsDto
+  ): Promise<AppearanceSettings> {
+    const { data, error } = await supabaseAdmin
+      .from("appearance_settings")
+      .insert(settings)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  async updateAppearanceSettings(
+    id: string,
+    dto: UpdateAppearanceSettingsDto
+  ): Promise<AppearanceSettings> {
+    const { data, error } = await supabaseAdmin
+      .from("appearance_settings")
       .update({
         ...dto,
         updated_at: new Date().toISOString(),

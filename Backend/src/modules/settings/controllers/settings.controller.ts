@@ -1,13 +1,16 @@
 import { Request, Response, NextFunction } from "express";
 import {
+  GetAppearanceSettingsUseCase,
   GetAppointmentSettingsUseCase,
   GetBusinessHoursUseCase,
   GetGeneralSettingsUseCase,
+  UpdateAppearanceSettingsUseCase,
   UpdateAppointmentSettingsUseCase,
   UpdateBusinessHoursUseCase,
   UpdateGeneralSettingsUseCase,
 } from "../use-cases";
 import {
+  updateAppearanceSettingsSchema,
   updateAppointmentSettingsSchema,
   updateBusinessHoursSchema,
   updateGeneralSettingsSchema,
@@ -20,6 +23,8 @@ const getBusinessHoursUseCase = new GetBusinessHoursUseCase();
 const updateBusinessHoursUseCase = new UpdateBusinessHoursUseCase();
 const getAppointmentSettingsUseCase = new GetAppointmentSettingsUseCase();
 const updateAppointmentSettingsUseCase = new UpdateAppointmentSettingsUseCase();
+const getAppearanceSettingsUseCase = new GetAppearanceSettingsUseCase();
+const updateAppearanceSettingsUseCase = new UpdateAppearanceSettingsUseCase();
 
 export const settingsController = {
   async getGeneral(
@@ -105,6 +110,36 @@ export const settingsController = {
       const settings = await updateAppointmentSettingsUseCase.execute(dto);
       res.json(success({
         message: "Configuración de turnos actualizada correctamente",
+        settings,
+      }));
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  async getAppearanceSettings(
+    _req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const settings = await getAppearanceSettingsUseCase.execute();
+      res.json(success(settings));
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  async updateAppearanceSettings(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const dto = updateAppearanceSettingsSchema.parse(req.body);
+      const settings = await updateAppearanceSettingsUseCase.execute(dto);
+      res.json(success({
+        message: "Apariencia actualizada correctamente",
         settings,
       }));
     } catch (err) {

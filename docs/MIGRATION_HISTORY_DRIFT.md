@@ -13,6 +13,7 @@ Migraciones registradas en Supabase remoto al momento de esta nota:
 - `20260702002116_create_business_settings_general`
 - `20260702114500_create_business_hours`
 - `20260702124622_create_appointment_settings`
+- `create_appearance_settings`
 
 Migraciones locales existentes que pueden representar cambios aplicados manualmente o historial no registrado:
 
@@ -23,6 +24,7 @@ Migraciones locales existentes que pueden representar cambios aplicados manualme
 - `20260702_business_settings.sql`
 - `20260702_business_hours.sql`
 - `20260702_appointment_settings.sql`
+- `20260702_appearance_settings.sql`
 
 ## Riesgo
 
@@ -30,7 +32,7 @@ La aplicacion puede funcionar si el esquema remoto real coincide con lo que nece
 
 ## Decision actual
 
-No se reordena ni se repara el historial en esta implementacion. Para los SDD de configuracion se agregaron y aplicaron las migraciones nuevas `create_business_hours` y `create_appointment_settings`.
+No se reordena ni se repara el historial en esta implementacion. Para los SDD de configuracion se agregaron y aplicaron las migraciones nuevas `create_business_hours`, `create_appointment_settings` y `create_appearance_settings`.
 
 ## Recomendacion futura
 

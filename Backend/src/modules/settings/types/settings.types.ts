@@ -168,3 +168,31 @@ export interface AppointmentSettings extends UpdateAppointmentSettingsDto {
   created_at: string;
   updated_at: string;
 }
+
+const hexColorSchema = z
+  .string()
+  .regex(/^#[0-9A-Fa-f]{6}$/, "Color must use hexadecimal format");
+
+export const updateAppearanceSettingsSchema = z.object({
+  theme_mode: z.enum(["dark", "light"]),
+  primary_color: hexColorSchema,
+  secondary_color: hexColorSchema,
+  accent_color: hexColorSchema,
+  background_color: hexColorSchema,
+  text_color: hexColorSchema,
+  border_radius: z
+    .number()
+    .int("border_radius must be an integer")
+    .min(0, "border_radius must be at least 0")
+    .max(32, "border_radius cannot exceed 32"),
+});
+
+export type UpdateAppearanceSettingsDto = z.infer<
+  typeof updateAppearanceSettingsSchema
+>;
+
+export interface AppearanceSettings extends UpdateAppearanceSettingsDto {
+  id: string;
+  created_at: string;
+  updated_at: string;
+}

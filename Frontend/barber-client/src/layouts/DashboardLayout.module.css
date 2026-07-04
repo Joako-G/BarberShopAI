@@ -1,5 +1,7 @@
 .shell {
   min-height: 100vh;
+  color: var(--on-surface);
+  background: var(--surface);
 }
 
 .frame {

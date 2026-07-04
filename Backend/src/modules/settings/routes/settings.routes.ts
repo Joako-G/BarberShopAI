@@ -47,4 +47,18 @@ router.put(
   settingsController.updateAppointmentSettings
 );
 
+router.get(
+  "/appearance",
+  authenticate,
+  requireRole("admin"),
+  settingsController.getAppearanceSettings
+);
+
+router.put(
+  "/appearance",
+  authenticate,
+  requireRole("admin"),
+  settingsController.updateAppearanceSettings
+);
+
 export default router;

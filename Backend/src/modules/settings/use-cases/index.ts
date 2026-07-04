@@ -5,3 +5,5 @@ export * from "./get-business-hour-for-date.use-case";
 export * from "./update-business-hours.use-case";
 export * from "./get-appointment-settings.use-case";
 export * from "./update-appointment-settings.use-case";
+export * from "./get-appearance-settings.use-case";
+export * from "./update-appearance-settings.use-case";

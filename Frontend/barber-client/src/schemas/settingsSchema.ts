@@ -132,3 +132,24 @@ export const appointmentSettingsSchema = z.object({
 
 export type AppointmentSettingsFormData = z.infer<typeof appointmentSettingsSchema>;
 export type AppointmentSettingsFormInput = z.input<typeof appointmentSettingsSchema>;
+
+const hexColorSchema = z
+    .string()
+    .regex(/^#[0-9A-Fa-f]{6}$/, "Usá un color hexadecimal válido");
+
+export const appearanceSettingsSchema = z.object({
+    theme_mode: z.enum(["dark", "light"]),
+    primary_color: hexColorSchema,
+    secondary_color: hexColorSchema,
+    accent_color: hexColorSchema,
+    background_color: hexColorSchema,
+    text_color: hexColorSchema,
+    border_radius: z
+        .number()
+        .int("El radio debe ser un número entero")
+        .min(0, "El radio mínimo es 0")
+        .max(32, "El radio máximo es 32"),
+});
+
+export type AppearanceSettingsFormData = z.infer<typeof appearanceSettingsSchema>;
+export type AppearanceSettingsFormInput = z.input<typeof appearanceSettingsSchema>;

@@ -100,6 +100,8 @@ GET /api/settings/business-hours
 PUT /api/settings/business-hours
 GET /api/settings/appointments
 PUT /api/settings/appointments
+GET /api/settings/appearance
+PUT /api/settings/appearance
 
 POST /api/services
 GET /api/services/admin
@@ -142,6 +144,7 @@ Solo el admin puede:
 - Ver y modificar configuración general del sistema.
 - Ver y modificar horarios laborales.
 - Ver y modificar configuración de turnos.
+- Ver y modificar apariencia del panel.
 
 ---
 
@@ -203,6 +206,11 @@ el router principal.
 La tabla `business_settings` no debe exponerse directamente a `anon` ni
 `authenticated`. La lectura y actualización se realizan únicamente desde los
 endpoints protegidos `/api/settings/general` mediante `supabaseAdmin`.
+
+Las tablas `business_hours`, `appointment_settings` y `appearance_settings`
+siguen el mismo criterio: RLS activo, sin acceso directo para `anon` ni
+`authenticated`, y lectura/escritura solo desde endpoints protegidos mediante
+`supabaseAdmin`.
 
 Las funciones PostgreSQL:
 

@@ -1,4 +1,6 @@
 import type {
+    AppearanceSettings,
+    AppearanceSettingsRequest,
     AppointmentSettings,
     AppointmentSettingsRequest,
     BusinessHour,
@@ -6,6 +8,7 @@ import type {
     BusinessSettingsRequest,
     UpdateBusinessHoursRequest,
     UpdateBusinessHoursResponse,
+    UpdateAppearanceSettingsResponse,
     UpdateAppointmentSettingsResponse,
     UpdateBusinessSettingsResponse,
 } from "../types/settings";
@@ -59,6 +62,24 @@ export async function updateAppointmentSettings(
     settings: AppointmentSettingsRequest
 ): Promise<UpdateAppointmentSettingsResponse> {
     const response = await axioClient.put("/settings/appointments", settings, {
+        headers: getAuthorizationHeaders(),
+    });
+
+    return response.data.data;
+}
+
+export async function getAppearanceSettings(): Promise<AppearanceSettings> {
+    const response = await axioClient.get("/settings/appearance", {
+        headers: getAuthorizationHeaders(),
+    });
+
+    return response.data.data;
+}
+
+export async function updateAppearanceSettings(
+    settings: AppearanceSettingsRequest
+): Promise<UpdateAppearanceSettingsResponse> {
+    const response = await axioClient.put("/settings/appearance", settings, {
         headers: getAuthorizationHeaders(),
     });
 
