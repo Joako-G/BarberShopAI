@@ -7,3 +7,8 @@ export * from "./get-appointment-settings.use-case";
 export * from "./update-appointment-settings.use-case";
 export * from "./get-appearance-settings.use-case";
 export * from "./update-appearance-settings.use-case";
+export * from "./list-calendar-exceptions.use-case";
+export * from "./create-calendar-exception.use-case";
+export * from "./update-calendar-exception.use-case";
+export * from "./delete-calendar-exception.use-case";
+export * from "./get-effective-business-hour-for-date.use-case";

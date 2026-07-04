@@ -153,3 +153,90 @@ export const appearanceSettingsSchema = z.object({
 
 export type AppearanceSettingsFormData = z.infer<typeof appearanceSettingsSchema>;
 export type AppearanceSettingsFormInput = z.input<typeof appearanceSettingsSchema>;
+
+const dateSchema = z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "Usa el formato YYYY-MM-DD");
+
+export const calendarExceptionSchema = z
+    .object({
+        type: z.enum(["CLOSED_DAY", "SPECIAL_HOURS", "VACATION"]),
+        title: z
+            .string()
+            .trim()
+            .min(1, "Ingresa un titulo")
+            .max(80, "El titulo no puede superar 80 caracteres"),
+        start_date: dateSchema,
+        end_date: dateSchema,
+        special_start_time: timeSchema.nullable().optional(),
+        special_end_time: timeSchema.nullable().optional(),
+        notes: optionalText(300, "Las notas no pueden superar los 300 caracteres"),
+    })
+    .superRefine((value, ctx) => {
+        if (value.end_date < value.start_date) {
+            ctx.addIssue({
+                code: "custom",
+                path: ["end_date"],
+                message: "La fecha fin debe ser igual o posterior al inicio",
+            });
+        }
+
+        if (value.type === "CLOSED_DAY" && value.end_date !== value.start_date) {
+            ctx.addIssue({
+                code: "custom",
+                path: ["end_date"],
+                message: "Un dia cerrado debe usar una sola fecha",
+            });
+        }
+
+        if (value.type !== "SPECIAL_HOURS") {
+            if (value.special_start_time || value.special_end_time) {
+                ctx.addIssue({
+                    code: "custom",
+                    path: ["special_start_time"],
+                    message: "Los dias cerrados y vacaciones no deben tener horario especial",
+                });
+            }
+
+            return;
+        }
+
+        if (value.end_date !== value.start_date) {
+            ctx.addIssue({
+                code: "custom",
+                path: ["end_date"],
+                message: "Un horario especial debe usar una sola fecha",
+            });
+        }
+
+        if (!value.special_start_time) {
+            ctx.addIssue({
+                code: "custom",
+                path: ["special_start_time"],
+                message: "Ingresa hora de inicio",
+            });
+        }
+
+        if (!value.special_end_time) {
+            ctx.addIssue({
+                code: "custom",
+                path: ["special_end_time"],
+                message: "Ingresa hora de fin",
+            });
+        }
+
+        if (
+            value.special_start_time &&
+            value.special_end_time &&
+            value.special_start_time >= value.special_end_time
+        ) {
+            ctx.addIssue({
+                code: "custom",
+                path: ["special_end_time"],
+                message: "La hora fin debe ser posterior al inicio",
+            });
+        }
+    });
+
+export type CalendarExceptionFormData = z.infer<typeof calendarExceptionSchema>;
+export type CalendarExceptionFormInput = z.input<typeof calendarExceptionSchema>;

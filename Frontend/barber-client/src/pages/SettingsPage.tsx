@@ -3,12 +3,14 @@ import { useNavigate } from "react-router-dom";
 import { AppearanceSettingsForm } from "../components/settings/AppearanceSettingsForm";
 import { AppointmentSettingsForm } from "../components/settings/AppointmentSettingsForm";
 import { BusinessHoursForm } from "../components/settings/BusinessHoursForm";
+import { CalendarExceptionsManager } from "../components/settings/CalendarExceptionsManager";
 import { GeneralSettingsForm } from "../components/settings/GeneralSettingsForm";
 import sharedStyles from "../components/ui/styles/shared.module.css";
 import type {
     AppearanceSettingsFormData,
     AppointmentSettingsFormData,
     BusinessHoursFormData,
+    CalendarExceptionFormData,
     SettingsFormData,
 } from "../schemas/settingsSchema";
 import { notifyError, notifySuccess } from "../services/notifications";
@@ -16,9 +18,13 @@ import {
     getAppointmentSettings,
     getAppearanceSettings,
     getBusinessHours,
+    getCalendarExceptions,
+    createCalendarException,
+    deleteCalendarException,
     updateAppointmentSettings,
     updateAppearanceSettings,
     updateBusinessHours,
+    updateCalendarException,
     updateGeneralSettings,
 } from "../services/settingsApi";
 import { useAppearanceStore } from "../store/appearanceStore";
@@ -27,16 +33,23 @@ import type {
     AppearanceSettings,
     AppointmentSettings,
     BusinessHour,
+    CalendarException,
 } from "../types/settings";
 import { classNames } from "../utils/classNames";
 
-type SettingsTab = "general" | "business-hours" | "appointments" | "appearance";
+type SettingsTab =
+    | "general"
+    | "business-hours"
+    | "appointments"
+    | "appearance"
+    | "calendar";
 
 const settingsTabs: Array<{ id: SettingsTab; label: string }> = [
     { id: "general", label: "Configuracion general" },
     { id: "business-hours", label: "Horarios laborales" },
     { id: "appointments", label: "Turnos" },
     { id: "appearance", label: "Apariencia" },
+    { id: "calendar", label: "Calendario" },
 ];
 
 export function SettingsPage() {
@@ -63,6 +76,9 @@ export function SettingsPage() {
     const [appearanceSettingsLoading, setAppearanceSettingsLoading] = useState(false);
     const [appearanceSettingsError, setAppearanceSettingsError] =
         useState<string | null>(null);
+    const [calendarExceptions, setCalendarExceptions] = useState<CalendarException[] | null>(null);
+    const [calendarLoading, setCalendarLoading] = useState(false);
+    const [calendarError, setCalendarError] = useState<string | null>(null);
 
     const loadBusinessHours = useCallback(async () => {
         setBusinessHoursLoading(true);
@@ -107,15 +123,30 @@ export function SettingsPage() {
         }
     }, [setAppearanceStoreSettings]);
 
+    const loadCalendarExceptions = useCallback(async () => {
+        setCalendarLoading(true);
+        setCalendarError(null);
+
+        try {
+            setCalendarExceptions(await getCalendarExceptions());
+        } catch {
+            setCalendarError("No se pudo cargar el calendario.");
+        } finally {
+            setCalendarLoading(false);
+        }
+    }, []);
+
     useEffect(() => {
         void loadSettings().catch(() => undefined);
         void loadBusinessHours();
         void loadAppointmentSettings();
         void loadAppearanceSettings();
+        void loadCalendarExceptions();
     }, [
         loadAppearanceSettings,
         loadAppointmentSettings,
         loadBusinessHours,
+        loadCalendarExceptions,
         loadSettings,
     ]);
 
@@ -180,6 +211,63 @@ export function SettingsPage() {
             notifyError({
                 title: "No se pudo guardar la apariencia",
                 description: "Revisa los colores y el radio de bordes e intenta nuevamente.",
+            });
+        }
+    };
+
+    const handleCalendarCreate = async (data: CalendarExceptionFormData) => {
+        try {
+            const response = await createCalendarException(data);
+            setCalendarExceptions((current) => [...(current ?? []), response.exception]);
+            notifySuccess({
+                title: "Excepcion creada",
+                description: "La excepcion de calendario se guardo correctamente.",
+            });
+        } catch {
+            notifyError({
+                title: "No se pudo crear la excepcion",
+                description: "Revisa los datos e intenta nuevamente.",
+            });
+        }
+    };
+
+    const handleCalendarUpdate = async (
+        id: string,
+        data: CalendarExceptionFormData
+    ) => {
+        try {
+            const response = await updateCalendarException(id, data);
+            setCalendarExceptions((current) =>
+                (current ?? []).map((exception) =>
+                    exception.id === id ? response.exception : exception
+                )
+            );
+            notifySuccess({
+                title: "Excepcion actualizada",
+                description: "La excepcion de calendario se actualizo correctamente.",
+            });
+        } catch {
+            notifyError({
+                title: "No se pudo actualizar la excepcion",
+                description: "Revisa los datos e intenta nuevamente.",
+            });
+        }
+    };
+
+    const handleCalendarDelete = async (id: string) => {
+        try {
+            await deleteCalendarException(id);
+            setCalendarExceptions((current) =>
+                (current ?? []).filter((exception) => exception.id !== id)
+            );
+            notifySuccess({
+                title: "Excepcion eliminada",
+                description: "La excepcion de calendario se elimino correctamente.",
+            });
+        } catch {
+            notifyError({
+                title: "No se pudo eliminar la excepcion",
+                description: "Intenta nuevamente en unos segundos.",
             });
         }
     };
@@ -323,6 +411,34 @@ export function SettingsPage() {
                         <AppearanceSettingsForm
                             initialValues={appearanceSettings}
                             onSubmit={handleAppearanceSettingsUpdate}
+                        />
+                    ) : null
+                )}
+
+                {activeTab === "calendar" && (
+                    calendarLoading && !calendarExceptions ? (
+                        <div className={classNames(sharedStyles.card, sharedStyles.loadingState)}>
+                            <span className={sharedStyles.loadingSpinner} />
+                            <strong>Cargando calendario...</strong>
+                        </div>
+                    ) : calendarError && !calendarExceptions ? (
+                        <div className={classNames(sharedStyles.card, sharedStyles.errorState)}>
+                            <strong>No pudimos cargar el calendario</strong>
+                            <span>{calendarError}</span>
+                            <button
+                                className={classNames(sharedStyles.button, sharedStyles.buttonPrimary)}
+                                onClick={() => void loadCalendarExceptions()}
+                                type="button"
+                            >
+                                Reintentar
+                            </button>
+                        </div>
+                    ) : calendarExceptions ? (
+                        <CalendarExceptionsManager
+                            exceptions={calendarExceptions}
+                            onCreate={handleCalendarCreate}
+                            onDelete={handleCalendarDelete}
+                            onUpdate={handleCalendarUpdate}
                         />
                     ) : null
                 )}

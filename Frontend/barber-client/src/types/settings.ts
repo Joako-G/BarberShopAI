@@ -109,3 +109,38 @@ export interface UpdateAppearanceSettingsResponse {
     message: string;
     settings: AppearanceSettings;
 }
+
+export type CalendarExceptionType = "CLOSED_DAY" | "SPECIAL_HOURS" | "VACATION";
+
+export interface CalendarException {
+    id: string;
+    type: CalendarExceptionType;
+    title: string;
+    start_date: string;
+    end_date: string;
+    is_closed: boolean;
+    special_start_time: string | null;
+    special_end_time: string | null;
+    notes: string | null;
+    created_at: string;
+    updated_at: string;
+}
+
+export interface CalendarExceptionRequest {
+    type: CalendarExceptionType;
+    title: string;
+    start_date: string;
+    end_date: string;
+    special_start_time?: string | null;
+    special_end_time?: string | null;
+    notes?: string | null;
+}
+
+export interface CalendarExceptionResponse {
+    message: string;
+    exception: CalendarException;
+}
+
+export interface DeleteCalendarExceptionResponse {
+    message: string;
+}

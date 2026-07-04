@@ -6,6 +6,10 @@ import type {
     BusinessHour,
     BusinessSettings,
     BusinessSettingsRequest,
+    CalendarException,
+    CalendarExceptionRequest,
+    CalendarExceptionResponse,
+    DeleteCalendarExceptionResponse,
     UpdateBusinessHoursRequest,
     UpdateBusinessHoursResponse,
     UpdateAppearanceSettingsResponse,
@@ -80,6 +84,45 @@ export async function updateAppearanceSettings(
     settings: AppearanceSettingsRequest
 ): Promise<UpdateAppearanceSettingsResponse> {
     const response = await axioClient.put("/settings/appearance", settings, {
+        headers: getAuthorizationHeaders(),
+    });
+
+    return response.data.data;
+}
+
+export async function getCalendarExceptions(): Promise<CalendarException[]> {
+    const response = await axioClient.get("/settings/calendar", {
+        headers: getAuthorizationHeaders(),
+    });
+
+    return response.data.data;
+}
+
+export async function createCalendarException(
+    payload: CalendarExceptionRequest
+): Promise<CalendarExceptionResponse> {
+    const response = await axioClient.post("/settings/calendar", payload, {
+        headers: getAuthorizationHeaders(),
+    });
+
+    return response.data.data;
+}
+
+export async function updateCalendarException(
+    id: string,
+    payload: CalendarExceptionRequest
+): Promise<CalendarExceptionResponse> {
+    const response = await axioClient.put(`/settings/calendar/${id}`, payload, {
+        headers: getAuthorizationHeaders(),
+    });
+
+    return response.data.data;
+}
+
+export async function deleteCalendarException(
+    id: string
+): Promise<DeleteCalendarExceptionResponse> {
+    const response = await axioClient.delete(`/settings/calendar/${id}`, {
         headers: getAuthorizationHeaders(),
     });
 

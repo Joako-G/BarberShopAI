@@ -286,6 +286,103 @@ Reglas:
 
 ---
 
+### Listar excepciones de calendario
+
+```http
+GET /api/settings/calendar
+```
+
+Privado.
+
+Requiere:
+
+```txt
+authenticate
+requireRole("admin")
+```
+
+Devuelve las excepciones configuradas para dias cerrados, horarios especiales y vacaciones.
+
+---
+
+### Crear excepcion de calendario
+
+```http
+POST /api/settings/calendar
+```
+
+Privado.
+
+Requiere:
+
+```txt
+authenticate
+requireRole("admin")
+```
+
+Body:
+
+```json
+{
+  "type": "SPECIAL_HOURS",
+  "title": "Horario especial",
+  "start_date": "2026-07-10",
+  "end_date": "2026-07-10",
+  "special_start_time": "10:00",
+  "special_end_time": "14:00",
+  "notes": "Atencion reducida"
+}
+```
+
+---
+
+### Actualizar excepcion de calendario
+
+```http
+PUT /api/settings/calendar/:id
+```
+
+Privado.
+
+Requiere:
+
+```txt
+authenticate
+requireRole("admin")
+```
+
+Usa el mismo body que la creacion.
+
+---
+
+### Eliminar excepcion de calendario
+
+```http
+DELETE /api/settings/calendar/:id
+```
+
+Privado.
+
+Requiere:
+
+```txt
+authenticate
+requireRole("admin")
+```
+
+Reglas:
+
+- `type` debe ser `CLOSED_DAY`, `SPECIAL_HOURS` o `VACATION`.
+- `start_date` y `end_date` deben usar formato `YYYY-MM-DD`.
+- `end_date` no puede ser anterior a `start_date`.
+- `CLOSED_DAY` y `SPECIAL_HOURS` aplican a un unico dia.
+- `VACATION` puede cubrir un rango de fechas.
+- `SPECIAL_HOURS` requiere `special_start_time` y `special_end_time` en formato `HH:MM`.
+- `special_start_time` debe ser menor que `special_end_time`.
+- `CLOSED_DAY` y `VACATION` no deben incluir horarios especiales.
+
+---
+
 ## Services
 
 ### Listar servicios activos

@@ -3,7 +3,7 @@ import { isBusinessDateTimePastOrNow } from "../../../shared/utils";
 import { serviceRepository } from "../../services/repositories";
 import {
   GetAppointmentSettingsUseCase,
-  GetBusinessHourForDateUseCase,
+  GetEffectiveBusinessHourForDateUseCase,
 } from "../../settings/use-cases";
 import {
   assertWithinWorkingHours,
@@ -28,14 +28,14 @@ interface PreparedAppointmentSchedule {
 
 const validateAppointmentConflictUseCase =
   new ValidateAppointmentConflictUseCase();
-const getBusinessHourForDateUseCase = new GetBusinessHourForDateUseCase();
+const getEffectiveBusinessHourForDateUseCase = new GetEffectiveBusinessHourForDateUseCase();
 const getAppointmentSettingsUseCase = new GetAppointmentSettingsUseCase();
 
 export class PrepareAppointmentScheduleUseCase {
   async execute(
     input: PrepareAppointmentScheduleInput
   ): Promise<PreparedAppointmentSchedule> {
-    const workingHours = await getBusinessHourForDateUseCase.execute(
+    const workingHours = await getEffectiveBusinessHourForDateUseCase.execute(
       input.appointmentDate
     );
     const appointmentSettings = await getAppointmentSettingsUseCase.execute();

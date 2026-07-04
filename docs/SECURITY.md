@@ -102,6 +102,10 @@ GET /api/settings/appointments
 PUT /api/settings/appointments
 GET /api/settings/appearance
 PUT /api/settings/appearance
+GET /api/settings/calendar
+POST /api/settings/calendar
+PUT /api/settings/calendar/:id
+DELETE /api/settings/calendar/:id
 
 POST /api/services
 GET /api/services/admin
@@ -145,6 +149,7 @@ Solo el admin puede:
 - Ver y modificar horarios laborales.
 - Ver y modificar configuración de turnos.
 - Ver y modificar apariencia del panel.
+- Gestionar excepciones de calendario.
 
 ---
 
@@ -207,10 +212,10 @@ La tabla `business_settings` no debe exponerse directamente a `anon` ni
 `authenticated`. La lectura y actualización se realizan únicamente desde los
 endpoints protegidos `/api/settings/general` mediante `supabaseAdmin`.
 
-Las tablas `business_hours`, `appointment_settings` y `appearance_settings`
-siguen el mismo criterio: RLS activo, sin acceso directo para `anon` ni
-`authenticated`, y lectura/escritura solo desde endpoints protegidos mediante
-`supabaseAdmin`.
+Las tablas `business_hours`, `appointment_settings`, `appearance_settings` y
+`calendar_exceptions` siguen el mismo criterio: RLS activo, sin acceso directo
+para `anon` ni `authenticated`, y lectura/escritura solo desde endpoints
+protegidos mediante `supabaseAdmin`.
 
 Las funciones PostgreSQL:
 

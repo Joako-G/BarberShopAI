@@ -42,6 +42,7 @@ describe("schedule preparation", () => {
       { id: "5", day_of_week: 5, is_open: true, start_time: "09:00", end_time: "18:00", created_at: "", updated_at: "" },
       { id: "6", day_of_week: 6, is_open: true, start_time: "09:00", end_time: "18:00", created_at: "", updated_at: "" },
     ]);
+    vi.spyOn(settingsRepository, "findCalendarExceptionsForDate").mockResolvedValue([]);
   });
 
   it("calculates end_time and validates availability", async () => {

@@ -196,3 +196,114 @@ export interface AppearanceSettings extends UpdateAppearanceSettingsDto {
   created_at: string;
   updated_at: string;
 }
+
+export const calendarExceptionTypeSchema = z.enum([
+  "CLOSED_DAY",
+  "SPECIAL_HOURS",
+  "VACATION",
+]);
+
+const dateSchema = z
+  .string()
+  .regex(/^\d{4}-\d{2}-\d{2}$/, "Date must use YYYY-MM-DD format");
+
+export const calendarExceptionPayloadSchema = z
+  .object({
+    type: calendarExceptionTypeSchema,
+    title: z
+      .string()
+      .trim()
+      .min(1, "Title is required")
+      .max(80, "Title cannot exceed 80 characters"),
+    start_date: dateSchema,
+    end_date: dateSchema,
+    special_start_time: timeSchema.nullable().optional(),
+    special_end_time: timeSchema.nullable().optional(),
+    notes: optionalTextSchema(300),
+  })
+  .superRefine((value, ctx) => {
+    if (value.end_date < value.start_date) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["end_date"],
+        message: "end_date must be greater than or equal to start_date",
+      });
+    }
+
+    if (value.type === "CLOSED_DAY" && value.end_date !== value.start_date) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["end_date"],
+        message: "CLOSED_DAY must use a single date",
+      });
+    }
+
+    if (value.type === "SPECIAL_HOURS") {
+      if (value.end_date !== value.start_date) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["end_date"],
+          message: "SPECIAL_HOURS must use a single date",
+        });
+      }
+
+      if (!value.special_start_time) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["special_start_time"],
+          message: "special_start_time is required for SPECIAL_HOURS",
+        });
+      }
+
+      if (!value.special_end_time) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["special_end_time"],
+          message: "special_end_time is required for SPECIAL_HOURS",
+        });
+      }
+
+      if (
+        value.special_start_time &&
+        value.special_end_time &&
+        value.special_start_time >= value.special_end_time
+      ) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["special_end_time"],
+          message: "special_end_time must be greater than special_start_time",
+        });
+      }
+
+      return;
+    }
+
+    if (value.special_start_time || value.special_end_time) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["special_start_time"],
+        message: "Closed days and vacations cannot include special hours",
+      });
+    }
+  });
+
+export const calendarExceptionIdSchema = z.object({
+  id: z.string().uuid("Calendar exception id must be a valid UUID"),
+});
+
+export type CalendarExceptionType = z.infer<typeof calendarExceptionTypeSchema>;
+export type CalendarExceptionDto = z.infer<typeof calendarExceptionPayloadSchema>;
+
+export interface CalendarException {
+  id: string;
+  type: CalendarExceptionType;
+  title: string;
+  start_date: string;
+  end_date: string;
+  is_closed: boolean;
+  special_start_time: string | null;
+  special_end_time: string | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}

@@ -207,6 +207,50 @@ supabase/migrations/20260702_appearance_settings.sql
 
 ---
 
+## calendar_exceptions
+
+Tabla para excepciones al horario laboral semanal.
+
+Permite bloquear dias especificos, definir horarios especiales o registrar vacaciones sin modificar `business_hours`.
+
+Campos:
+
+```txt
+id uuid primary key default gen_random_uuid()
+type text not null
+title text not null
+start_date date not null
+end_date date not null
+is_closed boolean not null default true
+special_start_time time null
+special_end_time time null
+notes text null
+created_at timestamptz default now()
+updated_at timestamptz default now()
+```
+
+Reglas:
+
+- `type` debe ser `CLOSED_DAY`, `SPECIAL_HOURS` o `VACATION`.
+- `title` debe tener entre 1 y 80 caracteres.
+- `end_date` debe ser igual o posterior a `start_date`.
+- `CLOSED_DAY` representa un unico dia cerrado.
+- `VACATION` puede representar un rango cerrado.
+- `SPECIAL_HOURS` representa un unico dia abierto con horario especial.
+- Si `type = SPECIAL_HOURS`, `is_closed` debe ser `false` y los horarios especiales son obligatorios.
+- Si `type` es `CLOSED_DAY` o `VACATION`, `is_closed` debe ser `true` y los horarios especiales deben ser `null`.
+- RLS debe estar activo.
+- `anon` y `authenticated` no deben tener acceso directo.
+- El backend accede mediante `supabaseAdmin`.
+
+La migracion reproducible se encuentra en:
+
+```txt
+supabase/migrations/20260703_calendar_exceptions.sql
+```
+
+---
+
 ## customers
 
 Actualmente no existe una tabla `customers`.

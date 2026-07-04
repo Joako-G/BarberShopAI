@@ -1,15 +1,21 @@
 import { Request, Response, NextFunction } from "express";
 import {
+  CreateCalendarExceptionUseCase,
+  DeleteCalendarExceptionUseCase,
   GetAppearanceSettingsUseCase,
   GetAppointmentSettingsUseCase,
   GetBusinessHoursUseCase,
   GetGeneralSettingsUseCase,
+  ListCalendarExceptionsUseCase,
   UpdateAppearanceSettingsUseCase,
   UpdateAppointmentSettingsUseCase,
   UpdateBusinessHoursUseCase,
+  UpdateCalendarExceptionUseCase,
   UpdateGeneralSettingsUseCase,
 } from "../use-cases";
 import {
+  calendarExceptionIdSchema,
+  calendarExceptionPayloadSchema,
   updateAppearanceSettingsSchema,
   updateAppointmentSettingsSchema,
   updateBusinessHoursSchema,
@@ -25,6 +31,10 @@ const getAppointmentSettingsUseCase = new GetAppointmentSettingsUseCase();
 const updateAppointmentSettingsUseCase = new UpdateAppointmentSettingsUseCase();
 const getAppearanceSettingsUseCase = new GetAppearanceSettingsUseCase();
 const updateAppearanceSettingsUseCase = new UpdateAppearanceSettingsUseCase();
+const listCalendarExceptionsUseCase = new ListCalendarExceptionsUseCase();
+const createCalendarExceptionUseCase = new CreateCalendarExceptionUseCase();
+const updateCalendarExceptionUseCase = new UpdateCalendarExceptionUseCase();
+const deleteCalendarExceptionUseCase = new DeleteCalendarExceptionUseCase();
 
 export const settingsController = {
   async getGeneral(
@@ -141,6 +151,70 @@ export const settingsController = {
       res.json(success({
         message: "Apariencia actualizada correctamente",
         settings,
+      }));
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  async listCalendarExceptions(
+    _req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const exceptions = await listCalendarExceptionsUseCase.execute();
+      res.json(success(exceptions));
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  async createCalendarException(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const dto = calendarExceptionPayloadSchema.parse(req.body);
+      const exception = await createCalendarExceptionUseCase.execute(dto);
+      res.status(201).json(success({
+        message: "Excepción de calendario creada correctamente",
+        exception,
+      }));
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  async updateCalendarException(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const { id } = calendarExceptionIdSchema.parse(req.params);
+      const dto = calendarExceptionPayloadSchema.parse(req.body);
+      const exception = await updateCalendarExceptionUseCase.execute(id, dto);
+      res.json(success({
+        message: "Excepción de calendario actualizada correctamente",
+        exception,
+      }));
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  async deleteCalendarException(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const { id } = calendarExceptionIdSchema.parse(req.params);
+      await deleteCalendarExceptionUseCase.execute(id);
+      res.json(success({
+        message: "Excepción de calendario eliminada correctamente",
       }));
     } catch (err) {
       next(err);

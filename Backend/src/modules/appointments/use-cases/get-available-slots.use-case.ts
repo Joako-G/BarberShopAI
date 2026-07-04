@@ -2,7 +2,7 @@ import { appointmentRepository } from "../repositories";
 import { serviceRepository } from "../../services/repositories";
 import {
   GetAppointmentSettingsUseCase,
-  GetBusinessHourForDateUseCase,
+  GetEffectiveBusinessHourForDateUseCase,
 } from "../../settings/use-cases";
 import { NotFoundError, ValidationError } from "../../../shared/errors";
 import { getBusinessDateTimeParts } from "../../../shared/utils";
@@ -14,7 +14,7 @@ import {
   parseTimeToMinutes,
 } from "./appointment-time.utils";
 
-const getBusinessHourForDateUseCase = new GetBusinessHourForDateUseCase();
+const getEffectiveBusinessHourForDateUseCase = new GetEffectiveBusinessHourForDateUseCase();
 const getAppointmentSettingsUseCase = new GetAppointmentSettingsUseCase();
 
 export class GetAvailableSlotsUseCase {
@@ -45,7 +45,7 @@ export class GetAvailableSlotsUseCase {
       return [];
     }
 
-    const workingHours = await getBusinessHourForDateUseCase.execute(date);
+    const workingHours = await getEffectiveBusinessHourForDateUseCase.execute(date);
 
     if (!workingHours.is_open || !workingHours.start_time || !workingHours.end_time) {
       return [];

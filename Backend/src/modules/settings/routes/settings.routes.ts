@@ -61,4 +61,32 @@ router.put(
   settingsController.updateAppearanceSettings
 );
 
+router.get(
+  "/calendar",
+  authenticate,
+  requireRole("admin"),
+  settingsController.listCalendarExceptions
+);
+
+router.post(
+  "/calendar",
+  authenticate,
+  requireRole("admin"),
+  settingsController.createCalendarException
+);
+
+router.put(
+  "/calendar/:id",
+  authenticate,
+  requireRole("admin"),
+  settingsController.updateCalendarException
+);
+
+router.delete(
+  "/calendar/:id",
+  authenticate,
+  requireRole("admin"),
+  settingsController.deleteCalendarException
+);
+
 export default router;
