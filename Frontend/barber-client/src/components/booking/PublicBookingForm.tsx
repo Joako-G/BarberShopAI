@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
-import { CalendarDays, Loader2, UserRound } from "lucide-react";
+import { CalendarDays, Check, Clock3, Loader2, UserRound } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import {
@@ -245,25 +245,39 @@ export function PublicBookingForm({ onSuccess }: PublicBookingFormProps) {
                 </header>
 
                 <div className={styles["booking-services"]}>
-                    {services.map((service) => (
-                        <label
-                            className={styles["booking-service"]}
-                            key={service.id}
-                        >
-                            <input
-                                type="radio"
-                                value={service.id}
-                                {...register("service_id")}
-                            />
-                            <span className={styles["booking-service__content"]}>
-                                <strong>{service.name}</strong>
-                                <small>
-                                    {service.duration_minutes} min · {formatPrice(service.price)}
-                                </small>
-                                {service.description && <em>{service.description}</em>}
-                            </span>
-                        </label>
-                    ))}
+                    {services.map((service) => {
+                        const description = service.description?.trim();
+
+                        return (
+                            <label
+                                className={styles["booking-service"]}
+                                key={service.id}
+                            >
+                                <input
+                                    type="radio"
+                                    value={service.id}
+                                    {...register("service_id")}
+                                />
+                                <span className={styles["booking-service__content"]}>
+                                    <span
+                                        aria-hidden="true"
+                                        className={styles["booking-service__check"]}
+                                    >
+                                        <Check size={14} strokeWidth={3} />
+                                    </span>
+                                    <strong>{service.name}</strong>
+                                    <span className={styles["booking-service__meta"]}>
+                                        <span>
+                                            <Clock3 aria-hidden="true" size={14} />
+                                            {service.duration_minutes} min
+                                        </span>
+                                        <span>{formatPrice(service.price)}</span>
+                                    </span>
+                                    {description ? <em>{description}</em> : null}
+                                </span>
+                            </label>
+                        );
+                    })}
                 </div>
                 {errors.service_id && (
                     <span className={styles["booking-field__error"]}>{errors.service_id.message}</span>
