@@ -1,5 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
+import { CalendarDays, Loader2, UserRound } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import {
@@ -83,6 +84,7 @@ export function PublicBookingForm({ onSuccess }: PublicBookingFormProps) {
 
     const selectedServiceId = useWatch({ control, name: "service_id" });
     const selectedDate = useWatch({ control, name: "appointment_date" });
+    const selectedStartTime = useWatch({ control, name: "start_time" });
     const selectedService = useMemo(
         () => services.find((service) => service.id === selectedServiceId),
         [selectedServiceId, services]
@@ -169,14 +171,14 @@ export function PublicBookingForm({ onSuccess }: PublicBookingFormProps) {
 
             notifySuccess({
                 title: "Reserva solicitada",
-                description: "Tu turno quedó pendiente de confirmación.",
+                description: "Tu turno quedo pendiente de confirmacion.",
             });
             onSuccess(appointment);
         } catch (error) {
             if (axios.isAxiosError(error) && error.response?.status === 409) {
                 notifyError({
                     title: "Horario no disponible",
-                    description: "El horario seleccionado ya no está disponible.",
+                    description: "El horario seleccionado ya no esta disponible.",
                 });
                 setValue("start_time", "");
 
@@ -197,7 +199,7 @@ export function PublicBookingForm({ onSuccess }: PublicBookingFormProps) {
                 title: "No pudimos registrar la reserva",
                 description: getErrorMessage(
                     error,
-                    "No pudimos registrar la reserva. Intentá nuevamente."
+                    "No pudimos registrar la reserva. Intenta nuevamente."
                 ),
             });
         }
@@ -207,7 +209,8 @@ export function PublicBookingForm({ onSuccess }: PublicBookingFormProps) {
         return (
             <div className={styles["booking-state"]} aria-live="polite">
                 <span className={sharedStyles.loadingSpinner} />
-                <strong>Preparando la agenda...</strong>
+                <strong>Estamos abriendo la agenda</strong>
+                <span>Enseguida vas a ver los servicios disponibles.</span>
             </div>
         );
     }
@@ -225,7 +228,7 @@ export function PublicBookingForm({ onSuccess }: PublicBookingFormProps) {
         return (
             <div className={styles["booking-state"]}>
                 <strong>No hay servicios disponibles</strong>
-                <span>Volvé a intentarlo más tarde.</span>
+                <span>La barberia todavia no publico servicios para reservar.</span>
             </div>
         );
     }
@@ -234,10 +237,10 @@ export function PublicBookingForm({ onSuccess }: PublicBookingFormProps) {
         <form className={styles["booking-form"]} onSubmit={handleSubmit(handleBooking)}>
             <section className={styles["booking-form__section"]}>
                 <header>
-                    <span>01</span>
+                    <span aria-hidden="true">01</span>
                     <div>
-                        <h2>Elegí tu servicio</h2>
-                        <p>Seleccioná la experiencia que querés reservar.</p>
+                        <h2>Elegi tu servicio</h2>
+                        <p>Compara duracion y precio antes de elegir.</p>
                     </div>
                 </header>
 
@@ -269,10 +272,12 @@ export function PublicBookingForm({ onSuccess }: PublicBookingFormProps) {
 
             <section className={styles["booking-form__section"]}>
                 <header>
-                    <span>02</span>
+                    <span aria-hidden="true">
+                        <CalendarDays size={16} />
+                    </span>
                     <div>
                         <h2>Fecha y horario</h2>
-                        <p>Los horarios se actualizan en tiempo real.</p>
+                        <p>El desplegable muestra solo horarios disponibles.</p>
                     </div>
                 </header>
 
@@ -289,47 +294,61 @@ export function PublicBookingForm({ onSuccess }: PublicBookingFormProps) {
                         )}
                     </label>
 
-                    <div className={styles["booking-field"]}>
+                    <label className={styles["booking-field"]}>
                         <span>Horario</span>
-                        {!selectedServiceId || !selectedDate ? (
-                            <div className={styles["booking-slots-placeholder"]}>
-                                Elegí servicio y fecha para ver horarios.
-                            </div>
-                        ) : slotsLoading ? (
-                            <div className={styles["booking-slots-placeholder"]}>
-                                Consultando horarios...
-                            </div>
-                        ) : slotsError ? (
-                            <div className={classNames(styles["booking-slots-placeholder"], styles["booking-slots-placeholder--error"])}>
-                                {slotsError}
-                            </div>
-                        ) : availableSlots.length === 0 ? (
-                            <div className={styles["booking-slots-placeholder"]}>
-                                No quedan horarios disponibles para ese día.
-                            </div>
-                        ) : (
-                            <div className={styles["booking-slots"]}>
-                                {availableSlots.map((slot) => (
-                                    <label key={slot}>
-                                        <input
-                                            type="radio"
-                                            value={slot}
-                                            {...register("start_time")}
-                                        />
-                                        <span>{slot}</span>
-                                    </label>
-                                ))}
-                            </div>
-                        )}
+                        <select
+                            disabled={!selectedServiceId || !selectedDate || slotsLoading || Boolean(slotsError) || availableSlots.length === 0}
+                            {...register("start_time")}
+                        >
+                            <option value="">
+                                {!selectedServiceId || !selectedDate
+                                    ? "Elegi servicio y fecha"
+                                    : slotsLoading
+                                        ? "Consultando horarios..."
+                                        : slotsError
+                                            ? "No pudimos cargar horarios"
+                                            : availableSlots.length === 0
+                                                ? "Sin horarios disponibles"
+                                                : "Selecciona un horario"}
+                            </option>
+                            {availableSlots.map((slot) => (
+                                <option key={slot} value={slot}>
+                                    {slot}
+                                </option>
+                            ))}
+                        </select>
+                        <span
+                            className={classNames(
+                                styles["booking-slot-help"],
+                                slotsError ? styles["booking-slot-help--error"] : undefined
+                            )}
+                            role={slotsError ? "alert" : undefined}
+                        >
+                            {slotsLoading ? (
+                                <>
+                                    <Loader2 aria-hidden="true" size={15} />
+                                    Consultando horarios disponibles...
+                                </>
+                            ) : slotsError ? (
+                                slotsError
+                            ) : selectedServiceId && selectedDate && availableSlots.length > 0 ? (
+                                `${availableSlots.length} horarios disponibles`
+                            ) : selectedServiceId && selectedDate ? (
+                                "No quedan horarios disponibles para ese dia."
+                            ) : (
+                                "Primero elegi servicio y fecha."
+                            )}
+                        </span>
                         {errors.start_time && <em>{errors.start_time.message}</em>}
-                    </div>
+                    </label>
                 </div>
 
                 {selectedService && (
                     <div className={styles["booking-summary-line"]}>
                         <span>{selectedService.name}</span>
                         <strong>
-                            {selectedService.duration_minutes} min de servicio
+                            {selectedService.duration_minutes} min · {formatPrice(selectedService.price)}
+                            {selectedStartTime ? ` · ${selectedStartTime}` : ""}
                         </strong>
                     </div>
                 )}
@@ -337,10 +356,12 @@ export function PublicBookingForm({ onSuccess }: PublicBookingFormProps) {
 
             <section className={styles["booking-form__section"]}>
                 <header>
-                    <span>03</span>
+                    <span aria-hidden="true">
+                        <UserRound size={16} />
+                    </span>
                     <div>
                         <h2>Tus datos</h2>
-                        <p>No necesitás crear una cuenta.</p>
+                        <p>Solo los usamos para confirmar esta reserva.</p>
                     </div>
                 </header>
 
@@ -349,7 +370,7 @@ export function PublicBookingForm({ onSuccess }: PublicBookingFormProps) {
                         <span>Nombre completo</span>
                         <input
                             autoComplete="name"
-                            placeholder="Ej. Juan Pérez"
+                            placeholder="Ej. Juan Perez"
                             type="text"
                             {...register("full_name")}
                         />
@@ -357,10 +378,10 @@ export function PublicBookingForm({ onSuccess }: PublicBookingFormProps) {
                     </label>
 
                     <label className={styles["booking-field"]}>
-                        <span>Teléfono</span>
+                        <span>Telefono</span>
                         <div className={styles["booking-phone-input"]}>
                             <select
-                                aria-label="Código de país"
+                                aria-label="Codigo de pais"
                                 value={phoneCountryCode}
                                 onChange={(event) =>
                                     setPhoneCountryCode(event.target.value as PhoneCountryCode)
@@ -399,7 +420,7 @@ export function PublicBookingForm({ onSuccess }: PublicBookingFormProps) {
                     <label className={classNames(styles["booking-field"], styles["booking-field--wide"])}>
                         <span>Notas opcionales</span>
                         <textarea
-                            placeholder="Contanos si necesitás que tengamos algo en cuenta"
+                            placeholder="Contanos si necesitas que tengamos algo en cuenta"
                             rows={3}
                             {...register("notes")}
                         />
@@ -410,14 +431,15 @@ export function PublicBookingForm({ onSuccess }: PublicBookingFormProps) {
 
             <footer className={styles["booking-form__footer"]}>
                 <p>
-                    La reserva quedará pendiente hasta que la barbería la confirme.
+                    Tu pedido queda pendiente hasta que la barberia lo confirme. No se crea
+                    ninguna cuenta y no se guardan datos de acceso.
                 </p>
                 <button
                     className={classNames(sharedStyles.button, sharedStyles.buttonPrimary, styles["booking-submit"])}
                     disabled={isSubmitting || slotsLoading}
                     type="submit"
                 >
-                    {isSubmitting ? "Reservando..." : "Solicitar turno"}
+                    {isSubmitting ? "Enviando pedido..." : "Pedir mi turno"}
                 </button>
             </footer>
         </form>

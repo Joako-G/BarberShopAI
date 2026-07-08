@@ -65,9 +65,10 @@ async function completeBookingForm() {
     fireEvent.change(screen.getByLabelText("Fecha"), {
         target: { value: "2030-07-01" },
     });
-    await user.click(
-        await screen.findByRole("radio", { name: "10:00" })
-    );
+    await screen.findByRole("option", { name: "10:00" });
+    fireEvent.change(screen.getByRole("combobox", { name: /Horario/ }), {
+        target: { value: "10:00" },
+    });
     await user.type(screen.getByLabelText("Nombre completo"), "Juan Pérez");
     await user.type(screen.getByPlaceholderText("2915551234"), "2915551234");
 
@@ -87,7 +88,7 @@ describe("PublicBookingForm", () => {
         render(<PublicBookingForm onSuccess={onSuccess} />);
         const user = await completeBookingForm();
 
-        await user.click(screen.getByRole("button", { name: "Solicitar turno" }));
+        await user.click(screen.getByRole("button", { name: "Pedir mi turno" }));
 
         await waitFor(() => {
             expect(mocks.getAvailableSlots).toHaveBeenCalledWith({
@@ -104,7 +105,7 @@ describe("PublicBookingForm", () => {
             );
             expect(mocks.notifySuccess).toHaveBeenCalledWith({
                 title: "Reserva solicitada",
-                description: "Tu turno quedó pendiente de confirmación.",
+                description: "Tu turno quedo pendiente de confirmacion.",
             });
             expect(onSuccess).toHaveBeenCalledWith(appointment);
         });
@@ -130,12 +131,12 @@ describe("PublicBookingForm", () => {
 
         render(<PublicBookingForm onSuccess={vi.fn()} />);
         const user = await completeBookingForm();
-        await user.click(screen.getByRole("button", { name: "Solicitar turno" }));
+        await user.click(screen.getByRole("button", { name: "Pedir mi turno" }));
 
         await waitFor(() => {
             expect(mocks.notifyError).toHaveBeenCalledWith({
                 title: "Horario no disponible",
-                description: "El horario seleccionado ya no está disponible.",
+                description: "El horario seleccionado ya no esta disponible.",
             });
             expect(mocks.getAvailableSlots).toHaveBeenCalledTimes(2);
         });

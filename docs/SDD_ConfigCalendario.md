@@ -486,4 +486,4 @@ Toda la lógica de prioridad entre:
 * Horarios laborales
 * Configuración de turnos
 
-debe centralizarse en el servicio que calcula `available-slots`.
+debe centralizarse en el servicio que calcula `available-slots`.   
